@@ -6,6 +6,7 @@ const fs = require('fs');
 const Report = require('../models/Report');
 const RiskZone = require('../models/RiskZone');
 const authMiddleware = require('../middlewares/authMiddleware');
+const { sendReportStatusNotification } = require('../controllers/notificationController');
 
 const uploadsDir = path.join(__dirname, '../../uploads');
 if (!fs.existsSync(uploadsDir)) {
@@ -255,6 +256,61 @@ router.get('/:reportId', async (req, res) => {
     res.status(500).json({
       success: false,
       error: { code: 'SERVER_ERROR', message: { en: 'Failed to fetch report', hi: 'रिपोर्ट प्राप्त करने में विफल' } }
+    });
+  }
+});
+
+// Update report status (Admin only)
+router.patch('/:reportId/status', authMiddleware, async (req, res) => {
+  try {
+    const { status, adminNotes, actionTaken } = req.body;
+
+    const report = await Report.findOne({ reportId: req.params.reportId });
+
+    if (!report) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'NOT_FOUND', message: { en: 'Report not found', hi: 'रिपोर्ट नहीं मिली' } }
+      });
+    }
+
+    // Update status
+    report.status = status;
+    report.statusHistory.push({
+      status,
+      changedAt: new Date(),
+      changedBy: req.userId,
+      notes: adminNotes || ''
+    });
+
+    // Update review info
+    if (!report.review) {
+      report.review = {};
+    }
+    report.review.reviewedBy = req.userId;
+    report.review.reviewedAt = new Date();
+    report.review.adminNotes = adminNotes;
+    report.review.actionTaken = actionTaken;
+    report.review.verificationStatus = status === 'verified' ? 'verified' :
+                                       status === 'rejected' ? 'false_report' : 'unverified';
+
+    await report.save();
+
+    // Send notification asynchronously
+    sendReportStatusNotification(report.reportId)
+      .then(result => console.log('✅ Status notification sent:', result))
+      .catch(err => console.error('❌ Status notification error:', err));
+
+    res.json({
+      success: true,
+      message: { en: 'Report status updated', hi: 'रिपोर्ट स्थिति अपडेट की गई' },
+      data: { report }
+    });
+  } catch (error) {
+    console.error('Update report status error:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'SERVER_ERROR', message: { en: 'Failed to update status', hi: 'स्थिति अपडेट करने में विफल' } }
     });
   }
 });

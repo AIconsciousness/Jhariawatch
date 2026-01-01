@@ -219,3 +219,4 @@ export const generatePlaceTimeSeries = (place, months = 12) => {
   return data;
 };
 
+

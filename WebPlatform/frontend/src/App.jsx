@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
+import { useNotifications } from './hooks/useNotifications';
+import { setAnalyticsUserId, setAnalyticsUserProperties } from './services/analyticsService';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -39,6 +41,31 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   const { user, loading } = useAuth();
+  const { requestPermission, isDefault } = useNotifications();
+
+  // Set analytics user properties
+  useEffect(() => {
+    if (user) {
+      setAnalyticsUserId(user._id);
+      setAnalyticsUserProperties({
+        language: user.preferredLanguage,
+        role: user.role,
+        area: user.addressDetails?.area
+      });
+    }
+  }, [user]);
+
+  // Auto-request notification permission for logged-in users
+  useEffect(() => {
+    if (user && isDefault) {
+      // Show permission prompt after 3 seconds
+      const timer = setTimeout(() => {
+        requestPermission();
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [user, isDefault, requestPermission]);
 
   return (
     <Routes>

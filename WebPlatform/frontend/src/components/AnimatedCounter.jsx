@@ -72,3 +72,4 @@ const AnimatedCounter = ({ end, duration = 2000, suffix = '', prefix = '' }) => 
 
 export default AnimatedCounter;
 
+

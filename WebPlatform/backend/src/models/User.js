@@ -81,7 +81,16 @@ const userSchema = new mongoose.Schema({
   subscribedZones: [String],
   lastActive: Date,
   reportsCount: { type: Number, default: 0 },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  fcmToken: {
+    type: String,
+    default: null,
+    description: 'Firebase Cloud Messaging token for push notifications'
+  },
+  fcmTokenUpdatedAt: {
+    type: Date,
+    default: null
+  }
 }, {
   timestamps: true
 });

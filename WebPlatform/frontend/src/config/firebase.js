@@ -18,3 +18,4 @@ export const isFirebaseConfigured = () => {
          firebaseConfig.projectId !== "YOUR_PROJECT_ID";
 };
 
+

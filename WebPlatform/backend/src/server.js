@@ -148,6 +148,24 @@ const initializeDatabase = async () => {
   }
 };
 
+// Setup cron job for weekly email updates
+const cron = require('node-cron');
+const { sendWeeklyUpdates } = require('./controllers/notificationController');
+
+// Schedule weekly updates (Every Monday at 9 AM IST)
+cron.schedule(process.env.WEEKLY_UPDATE_CRON || '0 9 * * 1', async () => {
+  console.log('📧 Running weekly email updates...');
+  try {
+    await sendWeeklyUpdates();
+  } catch (error) {
+    console.error('❌ Weekly update cron error:', error);
+  }
+}, {
+  timezone: 'Asia/Kolkata'
+});
+
+console.log('✅ Weekly email cron job scheduled');
+
 const startServer = async () => {
   await connectDB();
   await initializeDatabase();

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Alert = require('../models/Alert');
 const authMiddleware = require('../middlewares/authMiddleware');
+const { sendEmergencyAlertNotifications } = require('../controllers/notificationController');
 
 router.get('/', async (req, res) => {
   try {
@@ -106,6 +107,13 @@ router.post('/', authMiddleware, async (req, res) => {
     });
 
     await alert.save();
+
+    // Send notifications asynchronously (emergency alerts only)
+    if (alert.alertType === 'emergency' || alert.severity === 'critical') {
+      sendEmergencyAlertNotifications(alert)
+        .then(result => console.log('✅ Notifications sent:', result))
+        .catch(err => console.error('❌ Notification error:', err));
+    }
 
     res.status(201).json({
       success: true,

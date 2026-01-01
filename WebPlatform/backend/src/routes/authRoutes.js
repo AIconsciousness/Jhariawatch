@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const authMiddleware = require('../middlewares/authMiddleware');
+const { verifyFirebaseToken } = require('../services/firebaseService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'jharia-watch-secret-key-2025';
 
@@ -211,35 +212,43 @@ router.get('/profile', authMiddleware, async (req, res) => {
 
 router.post('/google', async (req, res) => {
   try {
-    const { token, user: firebaseUser } = req.body;
+    const { token } = req.body;
 
-    if (!token || !firebaseUser) {
+    if (!token) {
       return res.status(400).json({
         success: false,
-        error: { code: 'MISSING_DATA', message: { en: 'Firebase token and user data required', hi: 'Firebase टोकन और उपयोगकर्ता डेटा आवश्यक है' } }
+        error: { code: 'MISSING_TOKEN', message: { en: 'Firebase token required', hi: 'Firebase टोकन आवश्यक है' } }
       });
     }
 
-    // Verify Firebase token (in production, verify with Firebase Admin SDK)
-    // For now, we'll trust the token and create/login user
+    // Verify Firebase ID token
+    const firebaseUser = await verifyFirebaseToken(token);
 
+    if (!firebaseUser) {
+      return res.status(401).json({
+        success: false,
+        error: { code: 'INVALID_TOKEN', message: { en: 'Invalid Firebase token', hi: 'अमान्य Firebase टोकन' } }
+      });
+    }
+
+    // Find or create user
     let user = await User.findOne({ email: firebaseUser.email });
-    
+
     if (!user) {
-      // Create new user from Google sign in
       user = new User({
         email: firebaseUser.email,
-        name: firebaseUser.name || firebaseUser.displayName || 'User',
-        phone: firebaseUser.phoneNumber || '',
+        name: firebaseUser.name || firebaseUser.email.split('@')[0],
+        phone: '',
         preferredLanguage: 'hi',
-        password: Math.random().toString(36).slice(-12), // Random password for Google users
+        password: Math.random().toString(36).slice(-12),
         addressDetails: {
-          area: 'Other',
-          street: ''
+          area: 'Not specified',
+          street: 'Not specified'
         },
         isActive: true
       });
       await user.save();
+      console.log('✅ New Google user created:', user.email);
     }
 
     // Update last active
@@ -292,6 +301,38 @@ router.put('/profile', authMiddleware, async (req, res) => {
     res.status(500).json({
       success: false,
       error: { code: 'SERVER_ERROR', message: { en: 'Failed to update profile', hi: 'प्रोफ़ाइल अपडेट करने में विफल' } }
+    });
+  }
+});
+
+// Update FCM token for push notifications
+router.post('/fcm-token', authMiddleware, async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+
+    if (!fcmToken) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'MISSING_TOKEN', message: { en: 'FCM token required', hi: 'FCM टोकन आवश्यक है' } }
+      });
+    }
+
+    await User.findByIdAndUpdate(req.userId, {
+      fcmToken,
+      fcmTokenUpdatedAt: new Date()
+    });
+
+    console.log('✅ FCM token updated for user:', req.userId);
+
+    res.json({
+      success: true,
+      message: { en: 'Notification settings updated', hi: 'सूचना सेटिंग्स अपडेट की गई' }
+    });
+  } catch (error) {
+    console.error('FCM token update error:', error);
+    res.status(500).json({
+      success: false,
+      error: { code: 'SERVER_ERROR', message: { en: 'Failed to update token', hi: 'टोकन अपडेट करने में विफल' } }
     });
   }
 });

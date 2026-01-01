@@ -141,3 +141,46 @@ self.addEventListener('notificationclick', (event) => {
     );
   }
 });
+
+// Import Firebase scripts for FCM
+importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
+
+// Initialize Firebase in service worker
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'FIREBASE_CONFIG') {
+    try {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(event.data.config);
+
+        const messaging = firebase.messaging();
+
+        // Background message handler
+        messaging.onBackgroundMessage((payload) => {
+          console.log('[SW] Background message received:', payload);
+
+          const notificationTitle = payload.notification?.title || 'JhariaWatch Alert';
+          const notificationOptions = {
+            body: payload.notification?.body || 'New notification',
+            icon: '/icon-192x192.png',
+            badge: '/icon-192x192.png',
+            data: payload.data,
+            tag: 'jhariawatch-notification',
+            requireInteraction: true,
+            vibrate: [200, 100, 200],
+            actions: [
+              { action: 'view', title: 'View Details' },
+              { action: 'close', title: 'Dismiss' }
+            ]
+          };
+
+          return self.registration.showNotification(notificationTitle, notificationOptions);
+        });
+
+        console.log('[SW] Firebase messaging initialized');
+      }
+    } catch (error) {
+      console.error('[SW] Firebase initialization error:', error);
+    }
+  }
+});
