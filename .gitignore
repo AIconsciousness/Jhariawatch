@@ -8,6 +8,8 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+CREDENTIALS_SETUP.md
+*firebase-adminsdk*.json
 
 # Build outputs
 dist/
