@@ -43,10 +43,7 @@ export const signInWithGoogle = async () => {
       if (!initialized) {
         return {
           success: false,
-          error: {
-            code: 'FIREBASE_NOT_CONFIGURED',
-            message: { en: 'Google Sign In is not available. Please use email registration.', hi: 'Google साइन इन उपलब्ध नहीं है। कृपया ईमेल पंजीकरण का उपयोग करें।' }
-          }
+          error: 'Google Sign In is not available. Please use email registration.'
         };
       }
     }
@@ -71,12 +68,18 @@ export const signInWithGoogle = async () => {
     };
   } catch (error) {
     console.error('Google sign in error:', error);
+
+    // Handle user cancelled popup
+    if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+      return {
+        success: false,
+        error: 'Google Sign In cancelled'
+      };
+    }
+
     return {
       success: false,
-      error: {
-        code: error.code,
-        message: error.message
-      }
+      error: error.message || 'Google Sign In failed. Please try again.'
     };
   }
 };

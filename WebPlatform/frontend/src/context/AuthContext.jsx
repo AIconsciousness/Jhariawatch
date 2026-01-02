@@ -12,6 +12,21 @@ export const useAuth = () => {
   return context;
 };
 
+// Helper function to extract error message string
+const getErrorMessage = (error, fallback = 'An error occurred') => {
+  if (typeof error === 'string') return error;
+  if (error?.message) {
+    if (typeof error.message === 'string') return error.message;
+    if (typeof error.message === 'object') {
+      return error.message.en || error.message.hi || fallback;
+    }
+  }
+  if (error?.en || error?.hi) {
+    return error.en || error.hi;
+  }
+  return fallback;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -52,28 +67,28 @@ export const AuthProvider = ({ children }) => {
       // Check response structure - handle empty string responses
       if (!response || response.data === undefined || response.data === null) {
         console.error('❌ Invalid response structure:', response);
-        return { 
-          success: false, 
-          error: { message: { en: 'Invalid server response', hi: 'अमान्य सर्वर प्रतिक्रिया' } } 
+        return {
+          success: false,
+          error: 'Invalid server response'
         };
       }
-      
+
       // Handle empty string response (common with proxy issues)
       if (response.data === '' || (typeof response.data === 'string' && response.data.trim() === '')) {
         console.error('❌ Empty response body - possible proxy/CORS issue');
-        return { 
-          success: false, 
-          error: { message: { en: 'Server returned empty response. Please check backend configuration.', hi: 'सर्वर ने खाली प्रतिक्रिया दी। कृपया बैकएंड कॉन्फ़िगरेशन जांचें।' } } 
+        return {
+          success: false,
+          error: 'Server returned empty response. Please check backend configuration.'
         };
       }
-      
+
       if (response.data.success === true) {
-        const { token, user: userData } = response.data.data || {};
+        const { token, user: userData} = response.data.data || {};
         if (!token || !userData) {
           console.error('❌ Missing token or user data:', response.data);
-          return { 
-            success: false, 
-            error: { message: { en: 'Missing authentication data', hi: 'प्रमाणीकरण डेटा गुम है' } } 
+          return {
+            success: false,
+            error: 'Missing authentication data'
           };
         }
         localStorage.setItem('token', token);
@@ -83,7 +98,7 @@ export const AuthProvider = ({ children }) => {
       }
       
       console.warn('⚠️ Login failed - response not successful:', JSON.stringify(response.data, null, 2));
-      const error = response.data.error || { message: { en: 'Login failed', hi: 'लॉगिन विफल' } };
+      const error = getErrorMessage(response.data.error, 'Login failed');
       return { success: false, error };
     } catch (err) {
       console.error('❌ Login error:', err);
@@ -96,29 +111,20 @@ export const AuthProvider = ({ children }) => {
       
       // Network error (backend not running, CORS, etc.)
       if (!err.response) {
-        const networkError = { 
-          en: 'Cannot connect to server. Please check if backend is running on port 3001.', 
-          hi: 'सर्वर से कनेक्ट नहीं हो पा रहा। कृपया जांचें कि बैकएंड पोर्ट 3001 पर चल रहा है।' 
-        };
+        const networkError = 'Cannot connect to server. Please check if backend is running.';
         setError(networkError);
-        return { success: false, error: { message: networkError } };
+        return { success: false, error: networkError };
       }
-      
+
       // Server error response
-      let errorMsg = { en: 'Login failed', hi: 'लॉगिन विफल' };
-      
+      let errorMsg = 'Login failed';
+
       if (err.response?.data) {
-        if (err.response.data.error) {
-          errorMsg = err.response.data.error.message || errorMsg;
-        } else if (err.response.data.message) {
-          errorMsg = typeof err.response.data.message === 'string' 
-            ? { en: err.response.data.message, hi: err.response.data.message }
-            : err.response.data.message;
-        }
+        errorMsg = getErrorMessage(err.response.data.error || err.response.data, errorMsg);
       }
-      
+
       setError(errorMsg);
-      return { success: false, error: { message: errorMsg } };
+      return { success: false, error: errorMsg };
     }
   };
 
@@ -136,28 +142,28 @@ export const AuthProvider = ({ children }) => {
       // Check response structure - handle empty string responses
       if (!response || response.data === undefined || response.data === null) {
         console.error('❌ Invalid response structure:', response);
-        return { 
-          success: false, 
-          error: { message: { en: 'Invalid server response', hi: 'अमान्य सर्वर प्रतिक्रिया' } } 
+        return {
+          success: false,
+          error: 'Invalid server response'
         };
       }
-      
+
       // Handle empty string response (common with proxy issues)
       if (response.data === '' || (typeof response.data === 'string' && response.data.trim() === '')) {
         console.error('❌ Empty response body - possible proxy/CORS issue');
-        return { 
-          success: false, 
-          error: { message: { en: 'Server returned empty response. Please check backend configuration.', hi: 'सर्वर ने खाली प्रतिक्रिया दी। कृपया बैकएंड कॉन्फ़िगरेशन जांचें।' } } 
+        return {
+          success: false,
+          error: 'Server returned empty response. Please check backend configuration.'
         };
       }
-      
+
       if (response.data.success === true) {
         const { token, user: newUser } = response.data.data || {};
         if (!token || !newUser) {
           console.error('❌ Missing token or user data:', response.data);
-          return { 
-            success: false, 
-            error: { message: { en: 'Missing authentication data', hi: 'प्रमाणीकरण डेटा गुम है' } } 
+          return {
+            success: false,
+            error: 'Missing authentication data'
           };
         }
         localStorage.setItem('token', token);
@@ -167,7 +173,7 @@ export const AuthProvider = ({ children }) => {
       }
       
       console.warn('⚠️ Registration failed - response not successful:', JSON.stringify(response.data, null, 2));
-      const error = response.data.error || { message: { en: 'Registration failed', hi: 'पंजीकरण विफल' } };
+      const error = getErrorMessage(response.data.error, 'Registration failed');
       return { success: false, error };
     } catch (err) {
       console.error('❌ Registration error:', err);
@@ -180,29 +186,20 @@ export const AuthProvider = ({ children }) => {
       
       // Network error (backend not running, CORS, etc.)
       if (!err.response) {
-        const networkError = { 
-          en: 'Cannot connect to server. Please check if backend is running on port 3001.', 
-          hi: 'सर्वर से कनेक्ट नहीं हो पा रहा। कृपया जांचें कि बैकएंड पोर्ट 3001 पर चल रहा है।' 
-        };
+        const networkError = 'Cannot connect to server. Please check if backend is running.';
         setError(networkError);
-        return { success: false, error: { message: networkError } };
+        return { success: false, error: networkError };
       }
-      
+
       // Server error response
-      let errorMsg = { en: 'Registration failed', hi: 'पंजीकरण विफल' };
-      
+      let errorMsg = 'Registration failed';
+
       if (err.response?.data) {
-        if (err.response.data.error) {
-          errorMsg = err.response.data.error.message || errorMsg;
-        } else if (err.response.data.message) {
-          errorMsg = typeof err.response.data.message === 'string' 
-            ? { en: err.response.data.message, hi: err.response.data.message }
-            : err.response.data.message;
-        }
+        errorMsg = getErrorMessage(err.response.data.error || err.response.data, errorMsg);
       }
-      
+
       setError(errorMsg);
-      return { success: false, error: { message: errorMsg } };
+      return { success: false, error: errorMsg };
     }
   };
 
@@ -241,9 +238,9 @@ export const AuthProvider = ({ children }) => {
       return result;
     } catch (err) {
       console.error('Google sign in error:', err);
-      const errorMsg = err.response?.data?.error?.message || { en: 'Google sign in failed', hi: 'Google साइन इन विफल' };
+      const errorMsg = err.response?.data?.error?.message || err.response?.data?.error || 'Google sign in failed. Please try again.';
       setError(errorMsg);
-      return { success: false, error: { message: errorMsg } };
+      return { success: false, error: errorMsg };
     }
   };
 
