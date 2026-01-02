@@ -4,19 +4,33 @@ const admin = require('firebase-admin');
 const initializeFirebaseAdmin = () => {
   try {
     if (!admin.apps.length) {
+      // Check if required environment variables are set
+      if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !process.env.FIREBASE_PRIVATE_KEY) {
+        console.error('❌ Missing Firebase environment variables');
+        console.error('FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID ? 'SET' : 'NOT SET');
+        console.error('FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL ? 'SET' : 'NOT SET');
+        console.error('FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY ? 'SET (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : 'NOT SET');
+        return null;
+      }
+
+      const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
+
       admin.initializeApp({
         credential: admin.credential.cert({
           projectId: process.env.FIREBASE_PROJECT_ID,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+          privateKey: privateKey,
           clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
         }),
         projectId: process.env.FIREBASE_PROJECT_ID,
       });
-      console.log('✅ Firebase Admin SDK initialized');
+      console.log('✅ Firebase Admin SDK initialized successfully');
+      console.log('  - Project ID:', process.env.FIREBASE_PROJECT_ID);
+      console.log('  - Client Email:', process.env.FIREBASE_CLIENT_EMAIL);
     }
     return admin;
   } catch (error) {
-    console.error('❌ Firebase Admin initialization error:', error);
+    console.error('❌ Firebase Admin initialization error:', error.message);
+    console.error('Error code:', error.code);
     return null;
   }
 };
@@ -24,10 +38,19 @@ const initializeFirebaseAdmin = () => {
 // Verify Firebase ID token from frontend
 const verifyFirebaseToken = async (idToken) => {
   try {
-    const firebaseAdmin = initializeFirebaseAdmin();
-    if (!firebaseAdmin) return null;
+    console.log('🔐 Verifying Firebase token...');
 
+    // Check if Firebase Admin is initialized
+    const firebaseAdmin = initializeFirebaseAdmin();
+    if (!firebaseAdmin) {
+      console.error('❌ Firebase Admin not initialized');
+      return null;
+    }
+
+    console.log('✅ Firebase Admin initialized, verifying token');
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
+
+    console.log('✅ Token verified successfully for user:', decodedToken.email);
     return {
       uid: decodedToken.uid,
       email: decodedToken.email,
@@ -36,7 +59,9 @@ const verifyFirebaseToken = async (idToken) => {
       emailVerified: decodedToken.email_verified,
     };
   } catch (error) {
-    console.error('Token verification error:', error);
+    console.error('❌ Token verification error:', error.message);
+    console.error('Error code:', error.code);
+    console.error('Error stack:', error.stack);
     return null;
   }
 };

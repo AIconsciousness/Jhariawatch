@@ -212,22 +212,28 @@ router.get('/profile', authMiddleware, async (req, res) => {
 
 router.post('/google', async (req, res) => {
   try {
+    console.log('📱 Google Sign-in request received');
     const { token } = req.body;
 
     if (!token) {
+      console.error('❌ No token provided in request');
       return res.status(400).json({
         success: false,
-        error: { code: 'MISSING_TOKEN', message: { en: 'Firebase token required', hi: 'Firebase टोकन आवश्यक है' } }
+        error: 'Firebase token required'
       });
     }
 
+    console.log('🔐 Firebase token received (length:', token.length, ')');
+
     // Verify Firebase ID token
     const firebaseUser = await verifyFirebaseToken(token);
+    console.log('✅ Firebase user verification result:', firebaseUser ? 'SUCCESS' : 'FAILED');
 
     if (!firebaseUser) {
+      console.error('❌ Invalid Firebase token');
       return res.status(401).json({
         success: false,
-        error: { code: 'INVALID_TOKEN', message: { en: 'Invalid Firebase token', hi: 'अमान्य Firebase टोकन' } }
+        error: 'Invalid Firebase token'
       });
     }
 
@@ -265,10 +271,10 @@ router.post('/google', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Google auth error:', error);
+    console.error('❌ Google auth error:', error);
     res.status(500).json({
       success: false,
-      error: { code: 'SERVER_ERROR', message: { en: 'Google authentication failed', hi: 'Google प्रमाणीकरण विफल' } }
+      error: 'Google authentication failed. Please try again.'
     });
   }
 });
