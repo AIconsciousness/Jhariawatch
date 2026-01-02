@@ -45,10 +45,10 @@ const Landing = () => {
   ];
 
   const stats = [
-    { value: 45, suffix: '+', label: language === 'hi' ? 'निगरानी क्षेत्र' : 'Monitored Areas' },
-    { value: 1000, suffix: '+', label: language === 'hi' ? 'सक्रिय उपयोगकर्ता' : 'Active Users' },
-    { value: 24, prefix: '', suffix: '/7', label: language === 'hi' ? 'निगरानी' : 'Monitoring' },
-    { value: 95, suffix: '%', label: language === 'hi' ? 'सटीकता' : 'Accuracy' }
+    { value: 0, suffix: '', label: language === 'hi' ? 'निगरानी क्षेत्र' : 'Monitored Areas' },
+    { value: 0, suffix: '', label: language === 'hi' ? 'सक्रिय उपयोगकर्ता' : 'Active Users' },
+    { value: 0, prefix: '', suffix: '/7', label: language === 'hi' ? 'निगरानी' : 'Monitoring' },
+    { value: 0, suffix: '%', label: language === 'hi' ? 'सटीकता' : 'Accuracy' }
   ];
 
   return (
@@ -447,7 +447,7 @@ const Landing = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl flex items-end">
               <div className="p-8 text-white">
                 <h3 className="text-2xl font-bold mb-2">
-                  {language === 'hi' ? '1000+ परिवार सुरक्षित' : '1000+ Families Protected'}
+                  {language === 'hi' ? '00 परिवार सुरक्षित' : '00+ Families Protected'}
                 </h3>
                 <p className="text-gray-200">
                   {language === 'hi'
