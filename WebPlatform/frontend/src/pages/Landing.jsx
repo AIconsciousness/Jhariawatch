@@ -47,8 +47,8 @@ const Landing = () => {
   const stats = [
     { value: 0, suffix: '', label: language === 'hi' ? 'निगरानी क्षेत्र' : 'Monitored Areas' },
     { value: 0, suffix: '', label: language === 'hi' ? 'सक्रिय उपयोगकर्ता' : 'Active Users' },
-    { value: 0, prefix: '', suffix: '/7', label: language === 'hi' ? 'निगरानी' : 'Monitoring' },
-    { value: 0, suffix: '%', label: language === 'hi' ? 'सटीकता' : 'Accuracy' }
+    { value: 24, prefix: '', suffix: '/7', label: language === 'hi' ? 'निगरानी' : 'Monitoring' },
+    { value: 95, suffix: '+%', label: language === 'hi' ? 'सटीकता' : 'Accuracy' }
   ];
 
   return (
