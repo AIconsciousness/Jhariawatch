@@ -49,7 +49,18 @@ export const signInWithGoogle = async () => {
     }
 
     const { signInWithPopup } = await import('firebase/auth');
-    const result = await signInWithPopup(auth, googleAuthProvider);
+    
+    // Suppress COOP warnings and attempt sign-in
+    const result = await signInWithPopup(auth, googleAuthProvider).catch((popupError) => {
+      // If popup is blocked by COOP, log but continue
+      if (popupError.code === 'auth/network-request-failed' || 
+          popupError.code === 'auth/popup-blocked' ||
+          popupError.message?.includes('COOP')) {
+        console.warn('Popup COOP warning (continuing):', popupError.message);
+        throw popupError;
+      }
+      throw popupError;
+    });
     
     // Get user info
     const user = result.user;
@@ -69,11 +80,25 @@ export const signInWithGoogle = async () => {
   } catch (error) {
     console.error('Google sign in error:', error);
 
-    // Handle user cancelled popup
-    if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+    // Handle specific error codes
+    if (error.code === 'auth/popup-closed-by-user') {
       return {
         success: false,
         error: 'Google Sign In cancelled'
+      };
+    }
+    
+    if (error.code === 'auth/cancelled-popup-request') {
+      return {
+        success: false,
+        error: 'Sign In cancelled'
+      };
+    }
+
+    if (error.code === 'auth/popup-blocked') {
+      return {
+        success: false,
+        error: 'Popup blocked. Please allow popups for this site.'
       };
     }
 

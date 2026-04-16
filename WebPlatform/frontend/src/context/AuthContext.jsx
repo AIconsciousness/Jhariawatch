@@ -220,20 +220,31 @@ export const AuthProvider = ({ children }) => {
       const result = await firebaseGoogleSignIn();
       
       if (result.success) {
-        // Send Firebase token to backend for user creation/login
-        const response = await api.post('/auth/google', {
-          token: result.token,
-          user: result.user
-        });
-        
-        if (response.data.success) {
-          const { token, user: userData } = response.data.data;
-          localStorage.setItem('token', token);
-          localStorage.setItem('user', JSON.stringify(userData));
-          setUser(userData);
-          return { success: true };
+        // Send Firebase token to backend for user creation/login with longer timeout
+        try {
+          const response = await api.post('/auth/google', {
+            token: result.token,
+            user: result.user
+          }, {
+            timeout: 15000 // 15 second timeout instead of default 30s
+          });
+          
+          if (response.data.success) {
+            const { token, user: userData } = response.data.data;
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(userData));
+            setUser(userData);
+            return { success: true };
+          }
+          return { success: false, error: response.data.error };
+        } catch (backendErr) {
+          console.error('Backend auth error:', backendErr.message);
+          const errorMsg = backendErr.code === 'ECONNABORTED' 
+            ? 'Server timeout. Please check your internet connection and try again.'
+            : backendErr.response?.data?.error || 'Failed to complete sign in. Please try again.';
+          setError(errorMsg);
+          return { success: false, error: errorMsg };
         }
-        return { success: false, error: response.data.error };
       }
       return result;
     } catch (err) {

@@ -225,17 +225,31 @@ router.post('/google', async (req, res) => {
 
     console.log('🔐 Firebase token received (length:', token.length, ')');
 
-    // Verify Firebase ID token
-    const firebaseUser = await verifyFirebaseToken(token);
-    console.log('✅ Firebase user verification result:', firebaseUser ? 'SUCCESS' : 'FAILED');
+    // Verify Firebase ID token with timeout
+    let firebaseUser;
+    try {
+      const verificationPromise = verifyFirebaseToken(token);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Firebase verification timeout')), 8000)
+      );
+      firebaseUser = await Promise.race([verificationPromise, timeoutPromise]);
+    } catch (verifyError) {
+      console.error('❌ Firebase token verification failed:', verifyError.message);
+      return res.status(401).json({
+        success: false,
+        error: 'Firebase verification timeout or failed'
+      });
+    }
 
-    if (!firebaseUser) {
-      console.error('❌ Invalid Firebase token');
+    if (!firebaseUser || !firebaseUser.email) {
+      console.error('❌ Firebase verification returned no user data');
       return res.status(401).json({
         success: false,
         error: 'Invalid Firebase token'
       });
     }
+
+    console.log('✅ Firebase user verified:', firebaseUser.email);
 
     // Find or create user
     let user = await User.findOne({ email: firebaseUser.email });
