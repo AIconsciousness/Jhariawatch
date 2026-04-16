@@ -11,17 +11,31 @@ class GEEService {
 
   async initialize() {
     try {
-      const envKeyPath = process.env.GOOGLE_EARTH_ENGINE_KEY_FILE || './uploads/encoded-vista-471006-g0-52b1fbc62749.json';
-      const resolvedKeyPath = path.isAbsolute(envKeyPath)
-        ? envKeyPath
-        : path.resolve(__dirname, '..', '..', envKeyPath);
+      let keyData;
 
-      if (!fs.existsSync(resolvedKeyPath)) {
-        throw new Error(`GEE service account key file not found at ${resolvedKeyPath}`);
+      // Priority 1: Check for GEE_KEY_JSON env var (recommended for cloud like Render)
+      if (process.env.GEE_KEY_JSON) {
+        try {
+          keyData = JSON.parse(process.env.GEE_KEY_JSON);
+          console.log('🛰️ GEE initialization using GEE_KEY_JSON environment variable');
+        } catch (parseError) {
+          throw new Error('Failed to parse GEE_KEY_JSON environment variable: ' + parseError.message);
+        }
+      } 
+      // Priority 2: Check for physical key file
+      else {
+        const envKeyPath = process.env.GOOGLE_EARTH_ENGINE_KEY_FILE || './uploads/encoded-vista-471006-g0-52b1fbc62749.json';
+        const resolvedKeyPath = path.isAbsolute(envKeyPath)
+          ? envKeyPath
+          : path.resolve(__dirname, '..', '..', envKeyPath);
+
+        if (!fs.existsSync(resolvedKeyPath)) {
+          throw new Error(`GEE service account key file not found at ${resolvedKeyPath}. Set GEE_KEY_JSON for cloud deployment.`);
+        }
+
+        keyData = JSON.parse(fs.readFileSync(resolvedKeyPath, 'utf8'));
+        this.keyFilePath = resolvedKeyPath;
       }
-
-      const keyData = JSON.parse(fs.readFileSync(resolvedKeyPath, 'utf8'));
-      this.keyFilePath = resolvedKeyPath;
 
       await new Promise((resolve, reject) => {
         ee.data.authenticateViaPrivateKey(
@@ -38,7 +52,7 @@ class GEEService {
 
       this.initialized = true;
       this.useRealData = true;
-      console.log('✅ Google Earth Engine initialized with service account');
+      console.log('✅ Google Earth Engine initialized successfully');
     } catch (error) {
       console.error('⚠️ GEE initialization failed:', error.message);
       this.initialized = true;
