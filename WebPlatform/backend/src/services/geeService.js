@@ -819,12 +819,13 @@ class GEEService {
         velocity: subsidence.velocity,
         standardDeviation: subsidence.stdDev,
         confidence: subsidence.confidence,
-        method: 'advanced_ps_insar',
-        dataPoints: timeSeries.length
+        method: 'sentinel1_timeseries_analysis',
+        dataPoints: timeSeries.length,
+        lastAcquisition: timeSeries[0]?.date || null
       };
     } catch (error) {
-      console.error('Error calculating advanced subsidence:', error);
-      return this.getMockAdvancedSubsidence(point, startDate, endDate);
+      console.error('Error calculating real subsidence:', error);
+      throw new Error(`Satellite Analysis Failed: ${error.message}. Real data could not be fetched for this location.`);
     }
   }
 

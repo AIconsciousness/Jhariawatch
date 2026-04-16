@@ -171,11 +171,11 @@ const Register = () => {
         className="absolute inset-0 bg-cover bg-center transform scale-110 animate-subtle-zoom"
         style={{
           backgroundImage: 'url(/images/mining.jpg)',
-          filter: 'brightness(0.7) contrast(1.1) saturate(1.2)'
+          filter: 'brightness(0.9) contrast(1.1) saturate(1.2)'
         }}
       />
       {/* Animated Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-900/95 via-red-900/90 to-orange-800/95 animate-gradient-shift" />
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-900/60 via-red-900/50 to-orange-800/60 animate-gradient-shift" />
 
       {/* Floating Particles Effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
