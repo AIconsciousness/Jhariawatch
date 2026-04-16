@@ -91,11 +91,11 @@ const Login = () => {
         className="absolute inset-0 bg-cover bg-center transform scale-110 animate-subtle-zoom"
         style={{
           backgroundImage: 'url(/images/coalfield.jpg)',
-          filter: 'brightness(0.7) contrast(1.1)'
+          filter: 'brightness(0.9) contrast(1.1)'
         }}
       />
       {/* Animated Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-900/95 via-orange-900/90 to-red-800/95 animate-gradient-shift" />
+      <div className="absolute inset-0 bg-gradient-to-br from-red-900/60 via-orange-900/50 to-red-800/60 animate-gradient-shift" />
 
       {/* Floating Particles Effect */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

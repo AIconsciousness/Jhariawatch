@@ -14,7 +14,7 @@ export const useLanguage = () => {
 export const LanguageProvider = ({ children }) => {
   const { i18n } = useTranslation();
   const [language, setLanguageState] = useState(() => {
-    return localStorage.getItem('language') || 'hi';
+    return localStorage.getItem('language') || 'en';
   });
 
   useEffect(() => {

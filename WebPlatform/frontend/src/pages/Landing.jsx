@@ -140,10 +140,10 @@ const Landing = () => {
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: 'url(/images/hero-bg.jpg)',
-            filter: 'brightness(0.4)'
+            filter: 'brightness(0.7)'
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-sky-900/80 to-blue-900/80 dark:from-gray-900/90 dark:to-gray-800/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-sky-900/40 to-blue-900/40 dark:from-gray-900/60 dark:to-gray-800/60" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20">
           <div className="text-center text-white">
