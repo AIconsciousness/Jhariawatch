@@ -237,19 +237,27 @@ router.post('/google', async (req, res) => {
       console.error('❌ Firebase token verification failed:', verifyError.message);
       return res.status(401).json({
         success: false,
-        error: 'Firebase verification timeout or failed'
+        error: `Authentication service error: ${verifyError.message}`
       });
     }
 
-    if (!firebaseUser || !firebaseUser.email) {
-      console.error('❌ Firebase verification returned no user data');
+    if (!firebaseUser) {
+      console.error('❌ Firebase verification returned no user data (likely initialization failed)');
       return res.status(401).json({
         success: false,
-        error: 'Invalid Firebase token'
+        error: 'Authentication service initialization failed. Check server logs for PEM/Credential errors.'
       });
     }
 
-    console.log('✅ Firebase user verified:', firebaseUser.email);
+    if (!firebaseUser.email) {
+      console.error('❌ Firebase verification successful but no email found');
+      return res.status(401).json({
+        success: false,
+        error: 'No email associated with this Google account'
+      });
+    }
+
+    console.log('✅ Firebase user verified successfully:', firebaseUser.email);
 
     // Find or create user
     let user = await User.findOne({ email: firebaseUser.email });

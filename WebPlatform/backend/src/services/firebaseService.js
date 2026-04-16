@@ -4,33 +4,41 @@ const admin = require('firebase-admin');
 const initializeFirebaseAdmin = () => {
   try {
     if (!admin.apps.length) {
+      const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
+
       // Check if required environment variables are set
-      if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !process.env.FIREBASE_PRIVATE_KEY) {
+      if (!FIREBASE_PROJECT_ID || !FIREBASE_CLIENT_EMAIL || !FIREBASE_PRIVATE_KEY) {
         console.error('❌ Missing Firebase environment variables');
-        console.error('FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID ? 'SET' : 'NOT SET');
-        console.error('FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL ? 'SET' : 'NOT SET');
-        console.error('FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY ? 'SET (length: ' + process.env.FIREBASE_PRIVATE_KEY.length + ')' : 'NOT SET');
         return null;
       }
 
-      const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
+      // Robust private key parsing
+      let privateKey = FIREBASE_PRIVATE_KEY;
+      
+      // Remove wrapping quotes if they exist
+      if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+        privateKey = privateKey.substring(1, privateKey.length - 1);
+      }
+      
+      // Replace escaped newlines
+      privateKey = privateKey.replace(/\\n/g, '\n');
 
       admin.initializeApp({
         credential: admin.credential.cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
+          projectId: FIREBASE_PROJECT_ID,
           privateKey: privateKey,
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          clientEmail: FIREBASE_CLIENT_EMAIL,
         }),
-        projectId: process.env.FIREBASE_PROJECT_ID,
+        projectId: FIREBASE_PROJECT_ID,
       });
       console.log('✅ Firebase Admin SDK initialized successfully');
-      console.log('  - Project ID:', process.env.FIREBASE_PROJECT_ID);
-      console.log('  - Client Email:', process.env.FIREBASE_CLIENT_EMAIL);
     }
     return admin;
   } catch (error) {
     console.error('❌ Firebase Admin initialization error:', error.message);
-    console.error('Error code:', error.code);
+    if (error.message.includes('PEM')) {
+      console.error('💡 TIP: Check if your FIREBASE_PRIVATE_KEY in Render has correct newlines or extra quotes.');
+    }
     return null;
   }
 };

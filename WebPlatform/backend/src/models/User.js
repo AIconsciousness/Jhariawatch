@@ -21,8 +21,8 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: true,
-    trim: true
+    trim: true,
+    required: false
   },
   preferredLanguage: {
     type: String,
@@ -32,13 +32,13 @@ const userSchema = new mongoose.Schema({
   addressDetails: {
     area: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
       description: 'Area/Colony name in Jharia (e.g., Alkusa, Ena, Tisra)'
     },
     street: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
       description: 'Street/Road name'
     },
