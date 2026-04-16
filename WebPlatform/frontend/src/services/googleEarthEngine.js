@@ -1,84 +1,80 @@
-// Google Earth Engine API Integration
-// Google Earth Engine API configured
+// Google Earth Engine API Integration via Backend
+// This service now calls our backend GEE endpoints instead of direct GEE API
 
-const GEE_API_KEY = import.meta.env.VITE_GOOGLE_EARTH_ENGINE_API_KEY || "AIzaSyDqDM0UtR42QblS2NKXFSa0scXiNxTe7qw";
-const GEE_PROJECT_ID = import.meta.env.VITE_GOOGLE_EARTH_ENGINE_PROJECT_ID || "jharia-watch";
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 export const isGEEConfigured = () => {
-  return GEE_API_KEY !== "YOUR_GEE_API_KEY" && 
-         GEE_PROJECT_ID !== "YOUR_PROJECT_ID";
+  return true; // Backend handles GEE configuration
 };
 
 /**
  * Get Sentinel-1 subsidence data for Jharia region
- * @param {Object} bounds - Bounding box {north, south, east, west}
+ * @param {Object} bounds - Bounding box {north, south, east, west} or null for default Jharia
  * @param {string} startDate - Start date (YYYY-MM-DD)
  * @param {string} endDate - End date (YYYY-MM-DD)
  * @returns {Promise} Subsidence data
  */
-export const getSentinel1SubsidenceData = async (bounds, startDate, endDate) => {
-  if (!isGEEConfigured()) {
-    console.warn('Google Earth Engine not configured. Using mock data.');
-    return getMockSubsidenceData(bounds);
-  }
-
+export const getSentinel1SubsidenceData = async (bounds = null, startDate = null, endDate = null) => {
   try {
-    // This is a placeholder - actual GEE API calls will be implemented
-    // when credentials are provided
-    
-    const response = await fetch(
-      `https://earthengine.googleapis.com/v1alpha/projects/${GEE_PROJECT_ID}/image:computePixels`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${GEE_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          expression: `
-            // Sentinel-1 PS-InSAR processing
-            var sentinel1 = ee.ImageCollection('COPERNICUS/S1_GRD')
-              .filterBounds(ee.Geometry.Rectangle([${bounds.west}, ${bounds.south}, ${bounds.east}, ${bounds.north}]))
-              .filterDate('${startDate}', '${endDate}')
-              .filter(ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'));
-            
-            // PS-InSAR processing code here
-            // This is a simplified example
-            return sentinel1.mean();
-          `,
-          fileFormat: 'GEO_TIFF',
-          grid: {
-            dimensions: {
-              width: 512,
-              height: 512
-            },
-            affineTransform: {
-              scaleX: 0.0001,
-              scaleY: -0.0001,
-              translateX: bounds.west,
-              translateY: bounds.north
-            }
-          }
-        })
+    const params = new URLSearchParams();
+
+    if (bounds) {
+      params.append('bbox', `${bounds.west},${bounds.south},${bounds.east},${bounds.north}`);
+    }
+
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+
+    const response = await fetch(`${API_BASE_URL}/api/gee/data?${params}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
       }
-    );
+    });
 
     if (!response.ok) {
-      throw new Error('GEE API request failed');
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
-    return {
-      success: true,
-      data: data,
-      source: 'Google Earth Engine'
-    };
+    return data;
   } catch (error) {
-    console.error('GEE API error:', error);
+    console.error('GEE Backend API error:', error);
     return {
       success: false,
       error: error.message,
       data: getMockSubsidenceData(bounds) // Fallback to mock data
+    };
+  }
+};
+
+/**
+ * Get subsidence risk assessment for a specific location
+ * @param {number} lat - Latitude
+ * @param {number} lng - Longitude
+ * @returns {Promise} Risk assessment data
+ */
+export const getLocationRiskAssessment = async (lat, lng) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/gee/risk?lat=${lat}&lng=${lng}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Risk Assessment API error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: getMockRiskAssessment(lat, lng)
     };
   }
 };
@@ -91,20 +87,13 @@ export const getSentinel1SubsidenceData = async (bounds, startDate, endDate) => 
  * @returns {Promise} Time-series data
  */
 export const getSubsidenceTimeSeries = async (point, startDate, endDate) => {
-  if (!isGEEConfigured()) {
-    return getMockTimeSeries(point, startDate, endDate);
-  }
-
   try {
-    // GEE API call for time-series
-    // Implementation will be added when credentials are provided
+    // For now, return mock time-series data
+    // In future, backend can provide historical data
     return getMockTimeSeries(point, startDate, endDate);
   } catch (error) {
-    console.error('GEE time-series error:', error);
-    return {
-      success: false,
-      error: error.message
-    };
+    console.error('Time-series API error:', error);
+    return getMockTimeSeries(point, startDate, endDate);
   }
 };
 

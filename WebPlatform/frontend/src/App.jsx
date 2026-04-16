@@ -17,6 +17,7 @@ import Profile from './pages/Profile';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import CookiePolicy from './pages/CookiePolicy';
+import SatelliteData from './pages/SatelliteData';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -87,6 +88,7 @@ function App() {
         <Route path="safety" element={<Safety />} />
         <Route path="emergency" element={<Emergency />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="satellite" element={<SatelliteData />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

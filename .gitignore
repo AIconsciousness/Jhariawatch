@@ -43,3 +43,4 @@ nul
 # Testing
 coverage/
 .nyc_output/
+.aider*

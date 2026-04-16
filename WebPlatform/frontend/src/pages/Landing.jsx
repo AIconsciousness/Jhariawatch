@@ -44,13 +44,6 @@ const Landing = () => {
     }
   ];
 
-  const stats = [
-    { value: 0, suffix: '', label: language === 'hi' ? 'निगरानी क्षेत्र' : 'Monitored Areas' },
-    { value: 0, suffix: '', label: language === 'hi' ? 'सक्रिय उपयोगकर्ता' : 'Active Users' },
-    { value: 24, prefix: '', suffix: '/7', label: language === 'hi' ? 'निगरानी' : 'Monitoring' },
-    { value: 95, suffix: '+%', label: language === 'hi' ? 'सटीकता' : 'Accuracy' }
-  ];
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
       {/* Navbar - Sky Blue Theme */}
@@ -182,28 +175,7 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* Animated Stats */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {stats.map((stat, index) => (
-              <div 
-                key={index} 
-                className="bg-white/10 backdrop-blur-md rounded-xl p-4 md:p-6 text-center transform hover:scale-105 transition-all duration-300 animate-slide-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2">
-                  <AnimatedCounter 
-                    end={stat.value} 
-                    prefix={stat.prefix || ''} 
-                    suffix={stat.suffix || ''}
-                    duration={2000}
-                  />
-                </div>
-                <div className="text-xs md:text-base text-gray-200">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+
       </section>
 
       {/* Features Section */}
