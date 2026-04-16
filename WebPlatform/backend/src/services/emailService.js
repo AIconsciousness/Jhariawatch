@@ -1,10 +1,38 @@
 const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
-const OFFICIAL_FROM = process.env.OFFICIAL_FROM_EMAIL || 'reports@jhariawatch.com';
+// Constants
+const OFFICIAL_FROM = process.env.OFFICIAL_FROM_EMAIL || 'jhariyawatchapp@gmail.com';
 
-// Email templates
+/**
+ * Gets the active email provider based on environment variables.
+ * Fallback priority: 1. Resend, 2. Gmail (Nodemailer), 3. Null (Logging only)
+ */
+const getEmailClient = () => {
+  if (process.env.RESEND_API_KEY) {
+    return {
+      type: 'resend',
+      client: new Resend(process.env.RESEND_API_KEY)
+    };
+  }
+  
+  if (process.env.GMAIL_APP_PASSWORD) {
+    return {
+      type: 'gmail',
+      client: nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.GMAIL_USER || OFFICIAL_FROM,
+          pass: process.env.GMAIL_APP_PASSWORD,
+        },
+      })
+    };
+  }
+
+  return { type: 'none', client: null };
+};
+
+// Email templates ... (kept exactly as they were)
 const emailTemplates = {
   weeklyUpdate: (user, data) => ({
     subject: user.preferredLanguage === 'hi'
@@ -152,22 +180,43 @@ const emailTemplates = {
 
 const sendEmail = async (to, template) => {
   try {
-    const { data, error } = await resend.emails.send({
-      from: `JhariaWatch <${OFFICIAL_FROM}>`,
-      to: [to],
-      subject: template.subject,
-      html: template.html,
-    });
-
-    if (error) {
-      console.error('❌ Resend API Error:', error);
-      return { success: false, error };
+    const { type, client } = getEmailClient();
+    
+    if (type === 'none') {
+      console.warn('⚠️ No email service configured. Logging email instead:', { to, subject: template.subject });
+      return { success: true, messageId: 'logged-only' };
     }
 
-    console.log('✅ Email sent via Resend:', data.id);
-    return { success: true, messageId: data.id };
+    if (type === 'resend') {
+      const { data, error } = await client.emails.send({
+        from: `JhariaWatch <${OFFICIAL_FROM}>`,
+        to: [to],
+        subject: template.subject,
+        html: template.html,
+      });
+
+      if (error) {
+        console.error('❌ Resend API Error:', error);
+        return { success: false, error };
+      }
+
+      console.log('✅ Email sent via Resend:', data.id);
+      return { success: true, messageId: data.id };
+    }
+
+    if (type === 'gmail') {
+      const info = await client.sendMail({
+        from: `"JhariaWatch" <${OFFICIAL_FROM}>`,
+        to,
+        subject: template.subject,
+        html: template.html,
+      });
+      console.log('✅ Email sent via Gmail:', info.messageId);
+      return { success: true, messageId: info.messageId };
+    }
+
   } catch (error) {
-    console.error('❌ Resend send error:', error);
+    console.error('❌ Email send error:', error);
     return { success: false, error: error.message };
   }
 };
