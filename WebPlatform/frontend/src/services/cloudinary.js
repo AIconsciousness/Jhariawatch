@@ -1,9 +1,9 @@
 // Cloudinary Image Upload Service
 // Cloudinary credentials configured
 
-const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dhrzekva0";
-const CLOUDINARY_API_KEY = import.meta.env.VITE_CLOUDINARY_API_KEY || "668573826234893";
-const CLOUDINARY_API_SECRET = import.meta.env.VITE_CLOUDINARY_API_SECRET || "uBSa7-0cCoOXoIWF7-DLpGE0ZmQ";
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "duttqhauc";
+const CLOUDINARY_API_KEY = import.meta.env.VITE_CLOUDINARY_API_KEY || "827344128327149";
+const CLOUDINARY_API_SECRET = import.meta.env.VITE_CLOUDINARY_API_SECRET || "u47lj2W_liXuNG2e7psRMe4kuUQ";
 const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "jharia_reports"; // unsigned preset
 
 export const isCloudinaryConfigured = () => {
