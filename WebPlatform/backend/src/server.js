@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const express = require('express');
 const mongoose = require('mongoose');
@@ -6,13 +7,14 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const path = require('path');
 
 const authRoutes = require('./routes/authRoutes');
 const riskRoutes = require('./routes/riskRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const alertRoutes = require('./routes/alertRoutes');
 const seedRoutes = require('./routes/seedRoutes');
+const geeRoutes = require('./routes/geeRoutes');
+const satelliteRoutes = require('./routes/satelliteRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -97,6 +99,8 @@ app.use('/api/risk', riskRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/admin', seedRoutes);
+app.use('/api/gee', geeRoutes);
+app.use('/api/satellite', satelliteRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
@@ -169,6 +173,24 @@ console.log('✅ Weekly email cron job scheduled');
 const startServer = async () => {
   await connectDB();
   await initializeDatabase();
+
+  // Initialize Google Earth Engine
+  const geeService = require('./services/geeService');
+  try {
+    await geeService.initialize();
+  } catch (error) {
+    console.log('⚠️ GEE initialization failed, using fallback data');
+  }
+
+  // Initialize Satellite Processing Service
+  const satelliteProcessingService = require('./services/satelliteProcessingService');
+  try {
+    await satelliteProcessingService.initialize();
+    console.log('✅ Satellite Processing Service initialized');
+  } catch (error) {
+    console.error('❌ Satellite Processing Service initialization failed:', error);
+  }
+
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);

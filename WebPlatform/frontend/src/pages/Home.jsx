@@ -72,6 +72,7 @@ const Home = () => {
   const quickActions = [
     { icon: MapPin, label: t('home.checkRisk'), path: '/dashboard/risk-check', color: 'bg-red-500' },
     { icon: Camera, label: t('home.submitReport'), path: '/dashboard/report', color: 'bg-blue-500' },
+    { icon: Satellite, label: language === 'hi' ? 'सैटेलाइट डेटा' : 'Satellite Data', path: '/dashboard/satellite', color: 'bg-purple-500' },
     { icon: Bell, label: t('home.viewAlerts'), path: '/dashboard/alerts', color: 'bg-yellow-500', badge: alerts.length },
     { icon: Shield, label: t('home.safetyTips'), path: '/dashboard/safety', color: 'bg-green-500' }
   ];
@@ -162,6 +163,44 @@ const Home = () => {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Satellite Data Status */}
+      <div className="px-4 mt-4">
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Satellite className="w-5 h-5 text-blue-600" />
+            <h3 className="font-bold text-gray-800">
+              {language === 'hi' ? 'सैटेलाइट डेटा स्थिति' : 'Satellite Data Status'}
+            </h3>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">
+                {language === 'hi' ? 'Sentinel-1' : 'Sentinel-1'}
+              </span>
+              <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                {language === 'hi' ? 'सक्रिय' : 'Active'}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">
+                {language === 'hi' ? 'अंतिम अपडेट' : 'Last Update'}
+              </span>
+              <span className="text-sm text-gray-800">
+                {new Date().toLocaleDateString()}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">
+                {language === 'hi' ? 'कवरेज' : 'Coverage'}
+              </span>
+              <span className="text-sm text-gray-800">
+                {language === 'hi' ? 'झरिया क्षेत्र' : 'Jharia Region'}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
