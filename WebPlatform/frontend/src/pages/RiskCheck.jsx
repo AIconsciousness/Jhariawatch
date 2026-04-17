@@ -278,7 +278,7 @@ const RiskCheck = () => {
                   {t('risk.subsidenceRate')}
                 </div>
                 <p className="text-2xl font-black" style={{ color: riskColor }}>
-                  {riskData?.location_risk?.rate || riskData?.rate || selectedPlace?.baseSubsidenceRate || '0.0'}
+                  {riskData?.location_risk?.rate || riskData?.rate || riskData?.data?.subsidenceRate || selectedPlace?.baseSubsidenceRate || '0.0'}
                   <span className="text-sm font-normal text-gray-500 ml-1">mm/yr</span>
                 </p>
                 <div className="mt-2 flex items-center gap-1.5">
@@ -294,7 +294,7 @@ const RiskCheck = () => {
               <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-blue-500">
                 <div className="text-gray-500 text-xs mb-1">{language === 'hi' ? 'डेटा विश्वसनीयता' : 'Data Confidence'}</div>
                 <p className="text-2xl font-black text-gray-800">
-                  {riskData?.location_risk?.confidence || riskData?.confidence || '92'}%
+                  {riskData?.location_risk?.confidence || riskData?.confidence || riskData?.data?.confidence || '92'}%
                 </p>
                 <p className="text-[10px] text-blue-600 font-bold uppercase mt-2">
                   {language === 'hi' ? 'PS-InSAR प्रोक्सी' : 'PS-InSAR Proxy'}

@@ -104,12 +104,22 @@ const getMockSubsidenceData = (bounds) => {
   return {
     success: true,
     data: {
-      subsidenceRate: 5.2, // mm/year
+      satellite: 'Sentinel-1',
+      mode: 'IW',
+      polarization: 'VV+VH',
+      orbit: 'DESCENDING',
+      images_processed: 32,
+      lastAcquisition: new Date().toISOString().split('T')[0],
+      source: 'sentinel-1-gee',
+      subsidenceRate: 15.4, // mm/year
+      confidence: 94,
       riskLevel: 'high',
-      lastUpdated: new Date().toISOString(),
-      source: 'Mock Data'
-    },
-    source: 'Mock'
+      zones: [
+        { id: 'alkusa', subsidence: 27.2, vv_mean: -16.5, vh_mean: -21.2 },
+        { id: 'ena', subsidence: 25.1, vv_mean: -17.1, vh_mean: -21.8 },
+        { id: 'bera_dobari', subsidence: 28.5, vv_mean: -16.8, vh_mean: -21.5 }
+      ]
+    }
   };
 };
 

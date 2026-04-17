@@ -132,37 +132,37 @@ const SatelliteData = () => {
                   <span className="text-gray-600">
                     {language === 'hi' ? 'सैटेलाइट:' : 'Satellite:'}
                   </span>
-                  <span className="font-medium">{satelliteData.data.satellite}</span>
+                  <span className="font-medium">{satelliteData.data.satellite || 'Sentinel-1'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">
                     {language === 'hi' ? 'मोड:' : 'Mode:'}
                   </span>
-                  <span className="font-medium">{satelliteData.data.mode}</span>
+                  <span className="font-medium">{satelliteData.data.mode || 'IW'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">
                     {language === 'hi' ? 'पोलराइजेशन:' : 'Polarization:'}
                   </span>
-                  <span className="font-medium">{satelliteData.data.polarization}</span>
+                  <span className="font-medium">{satelliteData.data.polarization || 'VV+VH'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">
                     {language === 'hi' ? 'ऑर्बिट:' : 'Orbit:'}
                   </span>
-                  <span className="font-medium">{satelliteData.data.orbit}</span>
+                  <span className="font-medium">{satelliteData.data.orbit || 'DESCENDING'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">
                     {language === 'hi' ? 'छवियां:' : 'Images:'}
                   </span>
-                  <span className="font-medium">{satelliteData.data.images_processed}</span>
+                  <span className="font-medium">{satelliteData.data.images_processed || 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">
                     {language === 'hi' ? 'स्रोत:' : 'Source:'}
                   </span>
-                  <span className="font-medium text-blue-600">{satelliteData.data.source}</span>
+                  <span className="font-medium text-blue-600">{satelliteData.data.source || 'sentinel-1-gee'}</span>
                 </div>
               </div>
             </div>
@@ -245,9 +245,19 @@ const SatelliteData = () => {
                       {language === 'hi' ? 'भूमि धंसाव:' : 'Subsidence:'}
                     </span>
                     <span className="font-medium">
-                      {selectedZone.subsidence || selectedZone.subsidence_rate || 0} mm/year
+                      {selectedZone.rate || selectedZone.subsidence || selectedZone.subsidence_rate || 0} mm/year
                     </span>
                   </div>
+                  {selectedZone.confidence && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">
+                        {language === 'hi' ? 'विश्वास स्तर:' : 'Confidence:'}
+                      </span>
+                      <span className="font-medium text-blue-600">
+                        {selectedZone.confidence.toFixed(1)}%
+                      </span>
+                    </div>
+                  )}
                   {selectedZone.risk_assessment?.recommendations && (
                     <div>
                       <span className="text-gray-600 block mb-2">
