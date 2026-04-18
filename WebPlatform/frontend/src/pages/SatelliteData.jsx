@@ -53,7 +53,12 @@ const SatelliteData = () => {
   const checkLocationRisk = async (lat, lng) => {
     try {
       const result = await getLocationRiskAssessment(lat, lng);
-      setSelectedZone(result.data);
+      // Ensure custom zone has an ID to prevent .replace() errors
+      setSelectedZone({ 
+        ...result.data, 
+        id: 'custom_location',
+        location_risk: result.data 
+      });
     } catch (error) {
       console.error('Failed to check location risk:', error);
     }
@@ -180,7 +185,7 @@ const SatelliteData = () => {
                 {satelliteData.data.zones?.map((zone) => (
                   <div key={zone.id} onClick={() => setSelectedZone(zone)} className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 flex justify-between items-center cursor-pointer hover:bg-white transition shadow-sm">
                     <div>
-                      <p className="font-black text-sm uppercase">{zone.id.replace('_', ' ')}</p>
+                      <p className="font-black text-sm uppercase">{(zone.id || 'Custom').replace(/_/g, ' ')}</p>
                       <p className="text-[9px] text-gray-400">Confidence: {zone.confidence?.toFixed(1) || 92}%</p>
                     </div>
                     <span className={`px-2 py-1 rounded font-black text-[10px] ${zone.subsidence > 15 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
@@ -194,7 +199,7 @@ const SatelliteData = () => {
             {/* Floating Selection Report */}
             {selectedZone && selectedZone.id !== 'custom_location' && (
               <div className="bg-black text-white rounded-2xl p-6 shadow-2xl border-t-4 border-red-500 mt-6">
-                <h3 className="text-xl font-black uppercase mb-4">Report: {selectedZone.id.replace('_', ' ')}</h3>
+                <h3 className="text-xl font-black uppercase mb-4">Report: {(selectedZone.id || 'Custom').replace(/_/g, ' ')}</h3>
                 <div className="space-y-4 text-xs font-mono">
                   <div className="flex justify-between border-b border-white/10 pb-2">
                     <span className="opacity-40 uppercase">Subsidence Rate</span>

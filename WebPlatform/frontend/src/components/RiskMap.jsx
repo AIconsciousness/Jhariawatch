@@ -17,10 +17,15 @@ const riskColors = {
 };
 
 const userIcon = new L.DivIcon({
-  className: 'user-marker',
-  html: `<div style="width: 20px; height: 20px; background: #3b82f6; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-  iconSize: [20, 20],
-  iconAnchor: [10, 10]
+  className: 'custom-user-marker',
+  html: `
+    <div style="position: relative; display: flex; width: 36px; height: 36px; align-items: center; justify-content: center;">
+      <span style="position: absolute; display: inline-flex; height: 100%; width: 100%; border-radius: 50%; background-color: #3b82f6; opacity: 0.4; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
+      <span style="position: relative; display: inline-flex; border-radius: 50%; height: 16px; width: 16px; background-color: #2563eb; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></span>
+    </div>
+  `,
+  iconSize: [36, 36],
+  iconAnchor: [18, 18]
 });
 
 const LocationMarker = ({ position }) => {
