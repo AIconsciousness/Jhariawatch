@@ -251,208 +251,137 @@ const Home = () => {
         </div>
       </div>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          METHODOLOGY SECTION
-      ═══════════════════════════════════════════════════════════════════════ */}
-      <div className="px-4 mt-10 mb-4">
 
-        {/* Section header */}
-        <div className="mb-6 border-l-4 border-primary pl-4">
-          <span className="text-[10px] font-black text-primary/50 uppercase tracking-[0.15em]">
+      {/* METHODOLOGY SECTION */}
+      <div className="px-4 mt-10 mb-4">
+        <div className="mb-6">
+          <p className="text-[10px] font-mono text-gray-400 dark:text-stone-500 uppercase tracking-[0.18em] mb-1">
             {language === 'hi' ? 'उपग्रह विश्लेषण पद्धति' : 'Satellite Analysis Methodology'}
-          </span>
-          <h2 className="text-xl font-black text-gray-900 dark:text-white mt-0.5 leading-tight">
-            {language === 'hi' ? 'हम धंसाव कैसे मापते हैं' : 'How We Measure Ground Subsidence'}
+          </p>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+            {language === 'hi' ? 'हम धंसाव कैसे मापते हैं' : 'How Subsidence is Measured'}
           </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5 leading-relaxed max-w-2xl">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
             {language === 'hi'
-              ? 'JhariyaWatch दो अलग SAR processing approaches का उपयोग करता है — एक अभी सक्रिय है, एक precision upgrade के रूप में विकास में है। दोनों transparent तरीके से नीचे समझाए गए हैं।'
-              : 'JhariyaWatch operates two distinct SAR processing pipelines — one active today, one precision upgrade under development. Both are explained transparently below.'}
+              ? 'दो SAR techniques — एक अभी सक्रिय, एक विकास में।'
+              : 'Two SAR techniques — one live today, one precision upgrade in development.'}
           </p>
         </div>
 
-        <div className="space-y-5">
+        <div className="space-y-px bg-gray-200 dark:bg-gray-700 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
 
-          {/* ── PANEL 1: Backscatter (ACTIVE) ───────────────────────────────── */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
-
-            {/* Color bar header */}
-            <div className="flex items-center justify-between px-5 py-3.5 bg-emerald-600">
-              <div className="flex items-center gap-2.5">
-                <Radio className="w-4 h-4 text-white" />
-                <div>
-                  <p className="text-white font-bold text-sm leading-tight">Backscatter Amplitude Analysis</p>
-                  <p className="text-emerald-200 text-[10px]">Sentinel-1 SAR · C-Band · 5.6 GHz</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-1">
-                <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                <span className="text-white text-[9px] font-black uppercase tracking-widest">
-                  {language === 'hi' ? 'अभी सक्रिय' : 'Active Now'}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-5 space-y-5">
-
-              {/* Spec pills */}
-              <div className="flex flex-wrap gap-2">
-                {[
-                  ['Sensor', 'Sentinel-1 SAR'],
-                  ['Polarisation', 'VV + VH'],
-                  ['Revisit Cycle', '6 days'],
-                  ['Precision', '±3–5 mm/yr'],
-                  ['Platform', 'Google Earth Engine'],
-                ].map(([k, v]) => (
-                  <div key={k} className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5">
-                    <span className="text-[9px] font-black text-gray-400 uppercase block">{k}</span>
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">{v}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Description */}
-              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                {language === 'hi'
-                  ? 'Sentinel-1 माइक्रोवेव राडार दालें पृथ्वी की सतह की ओर भेजता है और परावर्तित संकेत की शक्ति (backscatter amplitude) रिकार्ड करता है। जब कोयला खदानों के ऊपर जमीन धंसती है, तो सतह की बनावट और dielectric properties बदलती हैं — जिससे backscatter value में measurable बदलाव आता है। 32+ time-series scenes पर per-pixel statistical regression से हम subsidence दर mm/वर्ष में निकालते हैं।'
-                  : "Sentinel-1 transmits C-band microwave pulses and records the intensity of the backscattered return. When the ground above a coal seam subsides, surface roughness and soil dielectric properties shift — producing a measurable change in backscatter amplitude. Running per-pixel linear regression across 32+ time-series scenes gives a subsidence rate in mm/year per location."}
-              </p>
-
-              {/* Pipeline */}
+          {/* Method 01 */}
+          <div className="bg-white dark:bg-gray-800 p-5">
+            <div className="flex items-start justify-between gap-2 mb-3">
               <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
-                  {language === 'hi' ? 'प्रक्रिया पाइपलाइन' : 'Processing Pipeline'}
-                </p>
-                <div className="space-y-2.5">
-                  {(language === 'hi' ? backscatterSteps.hi : backscatterSteps.en).map((step, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-md bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">
-                        {i + 1}
-                      </span>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-snug">{step}</p>
-                    </div>
-                  ))}
+                <div className="flex items-baseline gap-3">
+                  <span className="text-[10px] font-mono text-gray-400 dark:text-stone-600">01</span>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {language === 'hi' ? 'बैकस्कैटर एम्पलीट्यूड विश्लेषण' : 'Backscatter Amplitude Analysis'}
+                  </h3>
                 </div>
-              </div>
-
-              {/* Caveat */}
-              <div className="px-4 py-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl border-l-4 border-amber-400">
-                <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
-                  <span className="font-bold">{language === 'hi' ? 'सीमा — ' : 'Limitation — '}</span>
-                  {language === 'hi'
-                    ? 'यह अप्रत्यक्ष माप है। Amplitude बदलाव, surface deformation का proxy है, direct displacement नहीं। परिणाम ±5 mm uncertainty के साथ हैं।'
-                    : 'This is an indirect measurement. Amplitude change is a proxy for surface deformation — not a direct displacement measurement. Results carry approximately ±5 mm uncertainty.'}
+                <p className="text-[10px] font-mono text-gray-400 dark:text-stone-500 mt-1 ml-6">
+                  Sentinel-1 GRD &middot; C-Band &middot; 6-day revisit &middot; &plusmn;3&ndash;5 mm/yr
                 </p>
               </div>
-            </div>
-          </div>
-
-          {/* ── PANEL 2: PS-InSAR (ROADMAP) ─────────────────────────────────── */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
-
-            <div className="flex items-center justify-between px-5 py-3.5 bg-indigo-700">
-              <div className="flex items-center gap-2.5">
-                <Layers className="w-4 h-4 text-white" />
-                <div>
-                  <p className="text-white font-bold text-sm leading-tight">PS-InSAR Interferometry</p>
-                  <p className="text-indigo-200 text-[10px]">Persistent Scatterer InSAR · Sub-millimetre precision</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-1">
-                <Clock className="w-2.5 h-2.5 text-white" />
-                <span className="text-white text-[9px] font-black uppercase tracking-widest">
-                  {language === 'hi' ? 'रोडमैप' : 'Roadmap'}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-5 space-y-5">
-
-              {/* Spec pills */}
-              <div className="flex flex-wrap gap-2">
-                {[
-                  ['Data Type', 'Sentinel-1 SLC (complex)'],
-                  ['Min. Scenes', '20–30 acquisitions'],
-                  ['Precision', '<1 mm/yr'],
-                  ['Resolution', 'Point-level (PS)'],
-                  ['Phase Unwrapping', 'SNAPHU'],
-                ].map(([k, v]) => (
-                  <div key={k} className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5">
-                    <span className="text-[9px] font-black text-gray-400 uppercase block">{k}</span>
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">{v}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Description */}
-              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                {language === 'hi'
-                  ? 'PS-InSAR amplitude के बजाय radar signal के phase (तरंग-चरण) का उपयोग करता है। दो SAR acquisitions के बीच का interferometric phase सीधे line-of-sight displacement encode करता है। "Persistent Scatterers" — इमारतें, बिजली के खंभे, उजागर चट्टानें — वो बिंदु हैं जिनका phase वर्षों तक coherent रहता है। इनसे sub-millimetre accuracy का displacement time-series बनता है, जो amplitude-based methods से कहीं श्रेष्ठ है।'
-                  : "PS-InSAR uses the phase component of the complex SAR signal — not amplitude. The interferometric phase between two acquisitions directly encodes the line-of-sight displacement of the surface. \"Persistent Scatterers\" — buildings, pylons, bare rock outcrops — are stable reflectors whose phase remains coherent over years. From these, a sub-millimetre displacement time-series is extracted at each PS point, delivering precision orders of magnitude beyond amplitude analysis."}
-              </p>
-
-              {/* Pipeline */}
-              <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
-                  {language === 'hi' ? 'प्रक्रिया पाइपलाइन' : 'Processing Pipeline'}
-                </p>
-                <div className="space-y-2.5">
-                  {(language === 'hi' ? psinsar_steps.hi : psinsar_steps.en).map((step, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-md bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-400 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">
-                        {i + 1}
-                      </span>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-snug">{step}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Why upgrade */}
-              <div className="px-4 py-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border-l-4 border-indigo-400">
-                <p className="text-xs text-indigo-700 dark:text-indigo-300 leading-relaxed">
-                  <span className="font-bold">{language === 'hi' ? 'क्यों जरूरी है — ' : 'Why it matters — '}</span>
-                  {language === 'hi'
-                    ? 'Backscatter zone-level जोखिम देता है। PS-InSAR इमारत-दर-इमारत displacement map देगा — जिससे प्रत्येक प्रभावित घर की सटीक पहचान और targeted निकासी संभव होगी।'
-                    : 'Backscatter gives zone-level risk. PS-InSAR will deliver building-by-building displacement maps — enabling precise identification of at-risk households and targeted, evidence-based evacuation planning across Jharia.'}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Comparison table ─────────────────────────────────────────────── */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
-            <div className="px-5 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                {language === 'hi' ? 'तुलनात्मक सारांश' : 'Side-by-side Comparison'}
+              <span className="flex-shrink-0 text-[9px] font-mono text-gray-400 dark:text-stone-500 border border-gray-200 dark:border-gray-600 rounded px-2 py-0.5 uppercase tracking-wider">
+                {language === 'hi' ? 'सक्रिय' : 'Active'}
               </span>
-              <div className="flex gap-3 text-[9px] font-black uppercase tracking-wider">
-                <span className="text-emerald-600">● Backscatter</span>
-                <span className="text-indigo-500">○ PS-InSAR</span>
+            </div>
+            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed ml-6 mb-4">
+              {language === 'hi'
+                ? 'Sentinel-1 har 6 din mein C-band microwave daalen jameen par bhejta hai. Reflected signal ki shakti — backscatter amplitude — record hoti hai. Jab zameen dhansati hai, surface ki banavat badlati hai, jisse amplitude mein measurable parivartan aata hai. 32+ time-series images par per-pixel linear regression se dhansav dar mm/varsh mein nikali jati hai.'
+                : 'Sentinel-1 transmits C-band microwave pulses every 6 days. The reflected intensity — backscatter amplitude — is recorded. When ground subsides, surface texture and dielectric properties shift, producing a measurable amplitude change. Per-pixel linear regression across 32+ time-series scenes yields a subsidence rate in mm/year.'}
+            </p>
+            <div className="ml-6 space-y-1.5">
+              {['Sentinel-1 GRD acquisition → Google Earth Engine',
+                'VV/VH stack → Lee speckle filter',
+                'Per-pixel regression → subsidence rate (mm/yr)',
+                'Rate raster → risk zone classification → API'
+              ].map((s, i) => (
+                <div key={i} className="flex items-start gap-2.5">
+                  <span className="font-mono text-[9px] text-gray-400 dark:text-stone-600 flex-shrink-0 mt-0.5">{String(i+1).padStart(2,'0')}.</span>
+                  <span className="text-[11px] text-gray-500 dark:text-stone-400">{s}</span>
+                </div>
+              ))}
+            </div>
+            <p className="ml-6 mt-3 text-[10px] text-gray-400 dark:text-stone-600 leading-relaxed">
+              <span className="text-gray-500 dark:text-stone-500">{language === 'hi' ? 'सीमा: ' : 'Note: '}</span>
+              {language === 'hi'
+                ? 'Indirect measurement — amplitude proxy hai, direct displacement nahi. ~±5 mm uncertainty. Zone-level mapping ke liye upayukt.'
+                : 'Indirect measurement — amplitude is a proxy, not direct displacement. ~±5 mm uncertainty. Zone-level mapping only.'}
+            </p>
+          </div>
+
+          {/* Method 02 */}
+          <div className="bg-white dark:bg-gray-800 p-5">
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <div>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-[10px] font-mono text-gray-400 dark:text-stone-600">02</span>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                    PS-InSAR Interferometry
+                  </h3>
+                </div>
+                <p className="text-[10px] font-mono text-gray-400 dark:text-stone-500 mt-1 ml-6">
+                  Sentinel-1 SLC &middot; Phase analysis &middot; 20&ndash;30 scenes &middot; &lt;1 mm/yr
+                </p>
               </div>
+              <span className="flex-shrink-0 text-[9px] font-mono text-gray-400 dark:text-stone-600 border border-gray-200 dark:border-gray-700 rounded px-2 py-0.5 uppercase tracking-wider">
+                {language === 'hi' ? 'विकास में' : 'Roadmap'}
+              </span>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="bg-gray-50 dark:bg-gray-900/60">
-                    <th className="text-left px-5 py-2.5 text-[10px] font-black text-gray-400 uppercase tracking-wider w-1/3">
-                      {language === 'hi' ? 'मापदंड' : 'Parameter'}
-                    </th>
-                    <th className="text-left px-4 py-2.5 text-[10px] font-black text-emerald-600 uppercase tracking-wider">Backscatter</th>
-                    <th className="text-left px-4 py-2.5 text-[10px] font-black text-indigo-600 uppercase tracking-wider">PS-InSAR</th>
+            <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed ml-6 mb-4">
+              {language === 'hi'
+                ? 'PS-InSAR amplitude ki bajay radar signal ke phase ka upyog karta hai. Do acquisitions ke beech ka interferometric phase seedha line-of-sight displacement encode karta hai. Persistent Scatterers — imaartein, khambe, chattanein — wo bindu hain jinka phase varshon tak coherent rehta hai. In binduon ka track karke sub-millimetre displacement time-series milta hai.'
+                : 'PS-InSAR uses the phase of the complex SAR signal, not amplitude. The interferometric phase between two acquisitions directly encodes line-of-sight displacement. Persistent Scatterers — facades, pylons, rock outcrops — maintain phase coherence over years. Tracking thousands of PS points yields sub-millimetre displacement time-series at each location.'}
+            </p>
+            <div className="ml-6 space-y-1.5">
+              {['SLC stack (20+) → coregistration to single master',
+                'Amplitude dispersion → Persistent Scatterer selection',
+                'Differential interferograms → SNAPHU phase unwrapping',
+                'APS removal → final mm/yr displacement velocity map'
+              ].map((s, i) => (
+                <div key={i} className="flex items-start gap-2.5">
+                  <span className="font-mono text-[9px] text-gray-400 dark:text-stone-600 flex-shrink-0 mt-0.5">{String(i+1).padStart(2,'0')}.</span>
+                  <span className="text-[11px] text-gray-500 dark:text-stone-400">{s}</span>
+                </div>
+              ))}
+            </div>
+            <p className="ml-6 mt-3 text-[10px] text-gray-400 dark:text-stone-600 leading-relaxed">
+              <span className="text-gray-500 dark:text-stone-500">{language === 'hi' ? 'प्रभाव: ' : 'Impact: '}</span>
+              {language === 'hi'
+                ? 'Backscatter zone-level risk deta hai. PS-InSAR har imarat ke star par displacement map banega — sateek nikaasi planning ke liye.'
+                : 'Where backscatter gives zone-level risk, PS-InSAR will map displacement at individual building level — enabling targeted evacuation planning.'}
+            </p>
+          </div>
+
+          {/* Comparison */}
+          <div className="bg-white dark:bg-gray-800 overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-gray-100 dark:border-gray-700">
+                  <th className="text-left px-5 py-2.5 font-mono text-[9px] text-gray-400 dark:text-stone-600 uppercase tracking-wider">{language === 'hi' ? 'मापदंड' : 'Parameter'}</th>
+                  <th className="text-left px-4 py-2.5 font-mono text-[9px] text-gray-400 dark:text-stone-600 uppercase tracking-wider">{language === 'hi' ? 'बैकस्कैटर' : 'Backscatter'}</th>
+                  <th className="text-left px-4 py-2.5 font-mono text-[9px] text-gray-400 dark:text-stone-600 uppercase tracking-wider">PS-InSAR</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50 dark:divide-gray-700/50">
+                {[
+                  [language === 'hi' ? 'माप' : 'Measurement', 'Amplitude (indirect)', 'Phase (direct)'],
+                  [language === 'hi' ? 'सटीकता' : 'Accuracy', '±3-5 mm/yr', '<1 mm/yr'],
+                  [language === 'hi' ? 'स्थानिक विभेदन' : 'Spatial detail', 'Zone (10 m pixel)', 'Point-level (PS)'],
+                  [language === 'hi' ? 'डेटा' : 'Data', 'GRD', 'SLC (complex)'],
+                  [language === 'hi' ? 'स्थिति' : 'Status', 'Live', 'Development'],
+                ].map(([p, b, ps], i) => (
+                  <tr key={i}>
+                    <td className="px-5 py-2 text-gray-400 dark:text-stone-600 font-mono text-[9px]">{p}</td>
+                    <td className="px-4 py-2 text-gray-600 dark:text-gray-400 text-[11px]">{b}</td>
+                    <td className="px-4 py-2 text-gray-600 dark:text-gray-400 text-[11px]">{ps}</td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-700/60">
-                  {comparison.map(({ param, b, p }) => (
-                    <tr key={param} className="hover:bg-gray-50/70 dark:hover:bg-gray-700/20 transition-colors">
-                      <td className="px-5 py-2.5 text-gray-500 dark:text-gray-400 font-medium text-[11px]">{param}</td>
-                      <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300 font-semibold text-[11px]">{b}</td>
-                      <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300 font-semibold text-[11px]">{p}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
 
         </div>
