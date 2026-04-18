@@ -164,7 +164,7 @@ const RiskCheck = () => {
           </button>
 
           {showPlaceSelector && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg z-50 max-h-96 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl z-[100] max-h-96 overflow-y-auto border border-gray-100">
               {jhariaPlaces.map((place) => (
                 <button
                   key={place.id}
@@ -221,21 +221,32 @@ const RiskCheck = () => {
 
       {/* Map */}
       <div className="px-4 mt-4">
-        <RiskMap 
-          userLocation={userLocation} 
-          height="250px"
-          onZoneClick={(zone) => {
-            // Find matching place
-            const place = jhariaPlaces.find(p => 
-              p.name.en.toLowerCase().includes(zone.zoneName?.en?.toLowerCase() || '') ||
-              p.name.hi.includes(zone.zoneName?.hi || '')
-            );
-            if (place) {
-              handlePlaceSelect(place);
-            }
-          }}
-        />
+        <div className="rounded-2xl overflow-hidden shadow-lg border border-gray-200" style={{ isolation: 'isolate' }}>
+          <div className="bg-white px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
+                {language === 'hi' ? 'झरिया जोखिम मानचित्र' : 'Jharia Risk Map'}
+              </span>
+            </div>
+            <span className="text-[10px] text-gray-400">
+              {language === 'hi' ? 'क्षेत्र पर click करें' : 'Click a zone to select'}
+            </span>
+          </div>
+          <RiskMap
+            userLocation={userLocation}
+            height="260px"
+            onZoneClick={(zone) => {
+              const place = jhariaPlaces.find(p =>
+                p.name.en.toLowerCase().includes(zone.zoneName?.en?.toLowerCase() || '') ||
+                p.name.hi.includes(zone.zoneName?.hi || '')
+              );
+              if (place) handlePlaceSelect(place);
+            }}
+          />
+        </div>
       </div>
+
 
       {/* Risk Assessment Card */}
       {selectedPlace && (
