@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { MapPin, Camera, Bell, Shield, Phone, Satellite, Info, ChevronRight, Radio, Layers, Clock, CheckCircle2 } from 'lucide-react';
-import { BlueprintSatellite, BlueprintRadar, BlueprintSeismic, BlueprintMap } from '../components/BlueprintIcons';
+import { MapPin, Camera, Bell, Shield, Phone, Satellite, Info, ChevronRight, Radio, Layers, Clock, CheckCircle2, Activity, Target, Map } from 'lucide-react';
 import RiskMap from '../components/RiskMap';
 import LanguageToggle from '../components/LanguageToggle';
 import { riskAPI, alertAPI } from '../services/api';
@@ -108,10 +107,10 @@ const Home = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div className="bg-primary text-white px-4 pt-6 pb-12 rounded-b-[40px] relative blueprint-grid">
+      <div className="bg-primary text-white px-4 pt-6 pb-12 rounded-b-[40px] relative">
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-center gap-3">
-            <BlueprintSatellite className="w-10 h-10 text-blue-300 animate-float" />
+            <Satellite className="w-8 h-8 text-blue-300" />
             <div>
               <h1 className="text-2xl font-black tracking-tight">{t('home.title')}</h1>
               <p className="text-blue-100/60 text-[10px] uppercase tracking-widest font-bold">Nexus Intelligence Hub</p>
@@ -126,17 +125,17 @@ const Home = () => {
 
         {/* Left: Map */}
         <div className="flex-1 lg:max-w-[65%]">
-          <div className="bg-white dark:bg-gray-800 rounded-[24px] shadow-xl overflow-hidden sketch-border">
-            <div className="p-4 bg-gray-50 dark:bg-gray-900 border-b-2 border-primary/5 flex items-center justify-between">
+          <div className="bg-white dark:bg-gray-800 rounded-[24px] shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700">
+            <div className="p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <BlueprintMap className="w-5 h-5 text-primary" />
-                <h3 className="font-bold text-gray-800 dark:text-gray-100">
+                <Map className="w-5 h-5 text-gray-500" />
+                <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 uppercase tracking-widest">
                   {language === 'hi' ? 'झरिया जोखिम क्षेत्र' : 'Jharia Risk Map'}
                 </h3>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="technical-label">{language === 'hi' ? 'लाइव' : 'Live Source'}</span>
+                <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">{language === 'hi' ? 'लाइव' : 'Live Source'}</span>
               </div>
             </div>
             <RiskMap
@@ -170,82 +169,111 @@ const Home = () => {
         <div className="w-full lg:w-96 space-y-4">
           <h2 className="technical-label p-1 opacity-70">Control Panel</h2>
 
-          {/* Subsidence card */}
-          <div className="blueprint-card p-6 sketch-border relative active:scale-95 transition">
+          {/* Subsidence card - Dynamic based on location */}
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm relative transition">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <p className="technical-label mb-1">Live Subsidence</p>
-                <h3 className="text-3xl font-black text-gray-900 dark:text-white">
-                  {satelliteData?.subsidenceRate || stats?.maxSubsidenceRate || '15.4'}
-                  <span className="text-sm font-normal text-gray-400 ml-1">mm/yr</span>
-                </h3>
+                <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mb-1">
+                  {language === 'hi' ? 'स्थान आधारित धंसाव' : 'Location Subsidence'}
+                </p>
+                <div className="flex items-baseline gap-1">
+                  {loading ? (
+                    <span className="text-xl font-bold text-gray-400 animate-pulse">
+                      {language === 'hi' ? 'खोज रहा है...' : 'Scanning...'}
+                    </span>
+                  ) : (
+                    <>
+                      <h3 className="text-4xl font-black text-gray-900 dark:text-white">
+                        {currentRisk ? (currentRisk.location_risk?.rate || currentRisk.rate || '—') : '—'}
+                      </h3>
+                      <span className="text-sm font-normal text-gray-500 ml-1">mm/yr</span>
+                    </>
+                  )}
+                </div>
               </div>
-              <BlueprintSeismic className="w-8 h-8 text-red-500 opacity-80" />
+              <div className="w-10 h-10 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+                <Activity className="w-5 h-5 text-red-500" />
+              </div>
             </div>
-            <div className="w-full h-1 bg-gray-100 dark:bg-gray-700 rounded-full mb-3">
-              <div className="h-full bg-red-500 animate-draw" style={{ width: '65%' }} />
+            
+            <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mb-3 overflow-hidden">
+              <div 
+                className="h-full bg-red-500 transition-all duration-1000" 
+                style={{ width: currentRisk ? `${Math.min(((currentRisk.location_risk?.rate || 0) / 50) * 100, 100)}%` : '0%' }} 
+              />
             </div>
-            <p className="text-[10px] text-gray-400 italic font-medium leading-relaxed">
-              Estimated via Sentinel-1 backscatter amplitude time-series analysis.
+            
+            <p className="text-[10px] text-gray-500 font-mono leading-relaxed mt-4">
+              {language === 'hi' 
+                ? 'आपके वर्तमान coordinate के आधार पर Sentinel-1 data से गणना की गई।' 
+                : 'Calculated dynamically from Sentinel-1 data for your active coordinate.'}
             </p>
+            {userLocation && (
+              <p className="text-[9px] text-gray-400 font-mono mt-1">
+                LAT: {userLocation.lat.toFixed(4)} • LNG: {userLocation.lng.toFixed(4)}
+              </p>
+            )}
           </div>
 
           {/* Confidence card */}
-          <div className="blueprint-card p-5 border-blue-900/10">
+          <div className="bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <p className="technical-label">Processing Confidence</p>
-              <BlueprintRadar className="w-5 h-5 text-blue-500" />
+              <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">
+                {language === 'hi' ? 'डेटा विश्वसनीयता' : 'Data Confidence'}
+              </p>
+              <Target className="w-4 h-4 text-blue-500" />
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded-full p-0.5 border border-primary/5">
+              <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-600 rounded-full shadow-[0_0_8px_rgba(37,99,235,0.4)]"
-                  style={{ width: `${satelliteData?.confidence || 92}%` }}
+                  className="h-full bg-blue-500 transition-all duration-1000"
+                  style={{ width: `${currentRisk ? (currentRisk.location_risk?.confidence || 92) : 0}%` }}
                 />
               </div>
-              <span className="text-xl font-black text-blue-600">{satelliteData?.confidence || 92}%</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-white">
+                {currentRisk ? (currentRisk.location_risk?.confidence || 92).toFixed(0) : '—'}%
+              </span>
             </div>
             <div className="mt-3 flex items-center gap-2">
               <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                {satelliteData?.images_processed || 32} SCENES ANALYZED
+              <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">
+                32 SCENES ANALYZED
               </span>
             </div>
           </div>
 
           {/* Active technique badge */}
-          <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border border-emerald-200 dark:border-emerald-800">
+          <div className="p-4 bg-[#0d0f14] rounded-xl border border-gray-800">
             <div className="flex items-center gap-2 mb-1.5">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">Active Technique</span>
+              <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+              <span className="text-[9px] font-mono text-stone-500 uppercase tracking-widest">Active Technique</span>
             </div>
-            <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">Backscatter Amplitude Analysis</p>
-            <p className="text-[10px] text-emerald-600/70 dark:text-emerald-400/60 mt-0.5">Sentinel-1 SAR · C-Band · 6-day revisit</p>
-            <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-800 flex items-center gap-2">
-              <Clock className="w-3 h-3 text-indigo-500" />
-              <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold">PS-InSAR precision upgrade in roadmap</span>
+            <p className="text-sm font-bold text-white">Backscatter Amplitude</p>
+            <p className="text-[10px] font-mono text-stone-400 mt-0.5">Sentinel-1 GRD · C-Band</p>
+            <div className="mt-3 pt-3 border-t border-white/10 flex items-center gap-2">
+              <Clock className="w-3 h-3 text-stone-500" />
+              <span className="text-[9px] font-mono text-stone-500 uppercase">PS-InSAR upgrade in roadmap</span>
             </div>
           </div>
 
           {/* CTA */}
           <button
             onClick={() => navigate('/dashboard/risk-check')}
-            className="w-full py-5 bg-primary text-white rounded-[16px] font-black text-sm tracking-[0.2em] uppercase hover:bg-primary-dark transition-all transform hover:-translate-y-1 shadow-2xl overflow-hidden relative group"
+            className="w-full py-5 bg-black dark:bg-white text-white dark:text-black rounded-xl font-mono text-xs tracking-widest uppercase hover:opacity-90 transition-all flex items-center justify-center gap-3"
           >
-            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity blueprint-grid" />
-            {language === 'hi' ? 'अपना जोखिम जाँचें' : 'Deep Risk Scan'}
-            <ChevronRight className="w-5 h-5 inline-block ml-2 group-hover:translate-x-1 transition-transform" />
+            {language === 'hi' ? 'विस्तृत जोखिम स्कैन' : 'Deep Risk Scan'}
+            <ChevronRight className="w-4 h-4" />
           </button>
 
           {/* Mini stats */}
-          <div className="grid grid-cols-2 gap-3 pt-2 opacity-60">
-            <div className="text-center">
-              <p className="technical-label">Total Coverage</p>
-              <p className="text-sm font-black text-gray-400">100% (Jharia)</p>
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center">
+              <p className="text-[9px] font-mono text-gray-500 uppercase mb-1">Coverage</p>
+              <p className="text-xs font-bold text-gray-900 dark:text-white">100% Jharia</p>
             </div>
-            <div className="text-center">
-              <p className="technical-label">Report ID</p>
-              <p className="text-sm font-black text-gray-400">#JW-2026</p>
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 text-center">
+              <p className="text-[9px] font-mono text-gray-500 uppercase mb-1">Session ID</p>
+              <p className="text-xs font-mono text-gray-900 dark:text-white">#JW-{Math.floor(Math.random() * 9000) + 1000}</p>
             </div>
           </div>
         </div>
