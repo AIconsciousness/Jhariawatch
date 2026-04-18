@@ -112,6 +112,13 @@ export const signInWithGoogle = async () => {
       };
     }
 
+    if (error.code === 'auth/network-request-failed' || error.code === 'auth/internal-error') {
+      return {
+        success: false,
+        error: 'Network connection error. Please verify your internet connection, VPN, or firewall settings and try again.'
+      };
+    }
+
     return {
       success: false,
       error: error.message || 'Google Sign In failed. Please try again.'
