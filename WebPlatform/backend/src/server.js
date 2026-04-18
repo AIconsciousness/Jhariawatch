@@ -15,6 +15,7 @@ const alertRoutes = require('./routes/alertRoutes');
 const seedRoutes = require('./routes/seedRoutes');
 const geeRoutes = require('./routes/geeRoutes');
 const satelliteRoutes = require('./routes/satelliteRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -102,6 +103,7 @@ app.use('/api/alerts', alertRoutes);
 app.use('/api/admin', seedRoutes);
 app.use('/api/gee', geeRoutes);
 app.use('/api/satellite', satelliteRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

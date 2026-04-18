@@ -18,6 +18,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import CookiePolicy from './pages/CookiePolicy';
 import SatelliteData from './pages/SatelliteData';
+import CookieConsentBanner from './components/CookieConsentBanner';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -69,29 +70,32 @@ function App() {
   }, [user, isDefault, requestPermission]);
 
   return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/login" element={user && !loading ? <Navigate to="/dashboard" replace /> : <Login />} />
-      <Route path="/register" element={user && !loading ? <Navigate to="/dashboard" replace /> : <Register />} />
-      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-      <Route path="/terms-of-service" element={<TermsOfService />} />
-      <Route path="/cookie-policy" element={<CookiePolicy />} />
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Layout />
-        </ProtectedRoute>
-      }>
-        <Route index element={<Home />} />
-        <Route path="risk-check" element={<RiskCheck />} />
-        <Route path="report" element={<Report />} />
-        <Route path="alerts" element={<Alerts />} />
-        <Route path="safety" element={<Safety />} />
-        <Route path="emergency" element={<Emergency />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="satellite" element={<SatelliteData />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={user && !loading ? <Navigate to="/dashboard" replace /> : <Login />} />
+        <Route path="/register" element={user && !loading ? <Navigate to="/dashboard" replace /> : <Register />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/cookie-policy" element={<CookiePolicy />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Layout />
+          </ProtectedRoute>
+        }>
+          <Route index element={<Home />} />
+          <Route path="risk-check" element={<RiskCheck />} />
+          <Route path="report" element={<Report />} />
+          <Route path="alerts" element={<Alerts />} />
+          <Route path="safety" element={<Safety />} />
+          <Route path="emergency" element={<Emergency />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="satellite" element={<SatelliteData />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <CookieConsentBanner />
+    </>
   );
 }
 

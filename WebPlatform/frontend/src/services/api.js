@@ -140,4 +140,8 @@ export const adminAPI = {
   seedDatabase: () => api.post('/admin/seed')
 };
 
+export const analyticsAPI = {
+  logEvent: (data) => api.post('/analytics/event', data)
+};
+
 export default api;
