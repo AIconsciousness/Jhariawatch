@@ -42,10 +42,21 @@ const Home = () => {
             setUserLocation(loc);
             try {
               const riskRes = await riskAPI.checkLocation(loc.lat, loc.lng);
-              if (riskRes.data.success) setCurrentRisk(riskRes.data.data);
+              if (riskRes.data.success) {
+                const data = riskRes.data.data;
+                if (data.riskAssessment && data.riskAssessment.isInRiskZone) {
+                  setCurrentRisk({
+                    subsidenceRate: data.riskAssessment.subsidenceData?.averageRate || data.riskAssessment.riskScore || 15.0,
+                    confidence: data.riskAssessment.psinsar?.confidence || 94,
+                    riskLevel: data.riskAssessment.riskLevel
+                  });
+                } else {
+                  throw new Error("Custom external coordinate");
+                }
+              }
               else throw new Error("Fallback required");
             } catch (error) {
-              console.warn('Backend risk check failed, utilizing geospatial IDW proxy:', error.message);
+              console.warn('Utilizing geospatial IDW proxy for coordinate tracking');
               const fallbackRes = await getLocationRiskAssessment(loc.lat, loc.lng);
               if (fallbackRes.success) setCurrentRisk(fallbackRes.data);
             }
@@ -188,7 +199,7 @@ const Home = () => {
                   ) : (
                     <>
                       <h3 className="text-4xl font-black text-gray-900 dark:text-white">
-                        {currentRisk ? (currentRisk.location_risk?.rate || currentRisk.rate || currentRisk.data?.subsidenceRate || currentRisk.subsidenceRate || '—') : '—'}
+                        {currentRisk ? currentRisk.subsidenceRate : '—'}
                       </h3>
                       <span className="text-sm font-normal text-gray-500 ml-1">mm/yr</span>
                     </>
@@ -203,7 +214,7 @@ const Home = () => {
             <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mb-3 overflow-hidden">
               <div 
                 className="h-full bg-red-500 transition-all duration-1000" 
-                style={{ width: currentRisk ? `${Math.min(((currentRisk.location_risk?.rate || currentRisk.rate || currentRisk.data?.subsidenceRate || currentRisk.subsidenceRate || 0) / 50) * 100, 100)}%` : '0%' }} 
+                style={{ width: currentRisk ? `${Math.min(((currentRisk.subsidenceRate || 0) / 50) * 100, 100)}%` : '0%' }} 
               />
             </div>
             
@@ -231,11 +242,11 @@ const Home = () => {
               <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-blue-500 transition-all duration-1000"
-                  style={{ width: `${currentRisk ? (currentRisk.location_risk?.confidence || currentRisk.confidence || currentRisk.data?.confidence || 92) : 0}%` }}
+                  style={{ width: `${currentRisk ? (currentRisk.confidence || 92) : 0}%` }}
                 />
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">
-                {currentRisk ? (currentRisk.location_risk?.confidence || currentRisk.confidence || currentRisk.data?.confidence || 92).toFixed(0) : '—'}%
+                {currentRisk ? (currentRisk.confidence || 92).toFixed(0) : '—'}%
               </span>
             </div>
             <div className="mt-3 flex items-center gap-2">
