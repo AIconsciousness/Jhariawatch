@@ -42,7 +42,7 @@ const RiskCheck = () => {
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        async (position) => {
+        (position) => {
           const loc = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
@@ -54,7 +54,19 @@ const RiskCheck = () => {
           if (nearestPlace && nearestPlace.distance < 5) { // Within 5km
             setSelectedPlace(nearestPlace);
           } else {
-            await fetchRiskData(loc.lat, loc.lng);
+            // Create a custom location object to ensure UI renders correctly
+            setSelectedPlace({
+              id: 'custom_location_' + Date.now(),
+              name: { en: 'Custom Coordinate Scan', hi: 'कस्टम स्थान स्कैन' },
+              coordinates: loc,
+              distance: nearestPlace ? nearestPlace.distance : 0,
+              baseSubsidenceRate: 15, // Will be overridden by actual riskData visually
+              riskLevel: 'moderate',
+              description: {
+                en: 'Dynamic scan for user-specified coordinates outside master zones.',
+                hi: 'मानक निगरानी क्षेत्रों के बाहर उपयोगकर्ता द्वारा निर्दिष्ट कस्टम स्थान।'
+              }
+            });
           }
         },
         (err) => {
@@ -62,7 +74,6 @@ const RiskCheck = () => {
           const defaultPlace = jhariaPlaces.find(p => p.id === 'alkusa');
           setUserLocation(defaultPlace.coordinates);
           setSelectedPlace(defaultPlace);
-          fetchRiskData(defaultPlace.coordinates.lat, defaultPlace.coordinates.lng);
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
@@ -70,7 +81,6 @@ const RiskCheck = () => {
       const defaultPlace = jhariaPlaces.find(p => p.id === 'alkusa');
       setUserLocation(defaultPlace.coordinates);
       setSelectedPlace(defaultPlace);
-      fetchRiskData(defaultPlace.coordinates.lat, defaultPlace.coordinates.lng);
     }
   };
 
@@ -94,12 +104,7 @@ const RiskCheck = () => {
     setUserLocation(place.coordinates);
     setLoading(true);
     
-    // Generate chart data immediately
-    const data = generatePlaceTimeSeries(place, 12);
-    setChartData(data);
-    
-    // Fetch risk data
-    fetchRiskData(place.coordinates.lat, place.coordinates.lng);
+    // The useEffect[selectedPlace] will handle chart generation and API call.
   };
 
   const getRiskColor = (level) => {
@@ -124,7 +129,7 @@ const RiskCheck = () => {
   // Enable notifications for dangerous subsidence (hooks must run unconditionally)
   useSubsidenceNotifications(zoneId, chartData);
 
-  if (loading && !selectedPlace) {
+  if (loading && !selectedPlace && !riskData) {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>

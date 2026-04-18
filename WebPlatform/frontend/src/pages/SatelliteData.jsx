@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../context/LanguageContext';
-import { Satellite, MapPin, Calendar, Activity, Zap, Eye, Info, ShieldCheck } from 'lucide-react';
-import { BlueprintSatellite, BlueprintRadar, BlueprintSeismic, BlueprintAlert } from '../components/BlueprintIcons';
+import { Satellite, MapPin, Calendar, Activity, Zap, Eye, Info, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { getSentinel1SubsidenceData, getLocationRiskAssessment } from '../services/googleEarthEngine';
 
 const SatelliteData = () => {
@@ -34,13 +33,18 @@ const SatelliteData = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setUserLocation({ lat, lng });
+          
+          // Trigger the location risk check for these specific coordinates!
+          checkLocationRisk(lat, lng);
         },
         () => {
-          setUserLocation({ lat: 23.75, lng: 86.42 });
+          const lat = 23.75;
+          const lng = 86.42;
+          setUserLocation({ lat, lng });
+          checkLocationRisk(lat, lng);
         }
       );
     }
@@ -67,13 +71,13 @@ const SatelliteData = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
       {/* Header Section */}
-      <div className="blueprint-grid text-white px-4 pt-8 pb-12 rounded-b-[40px] bg-primary relative overflow-hidden">
+      <div className="bg-primary text-white px-4 pt-8 pb-12 rounded-b-[40px] relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10">
-          <BlueprintSatellite className="w-32 h-32" />
+          <Satellite className="w-32 h-32" />
         </div>
         <div className="flex items-center gap-4 mb-6 relative z-10">
-          <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md sketch-border">
-            <BlueprintSatellite className="w-10 h-10 text-blue-300" />
+          <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
+            <Satellite className="w-10 h-10 text-blue-300" />
           </div>
           <div>
             <h1 className="text-3xl font-black tracking-tight">
@@ -86,7 +90,7 @@ const SatelliteData = () => {
         </div>
 
         {/* Status Card */}
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-5 border border-white/10 relative z-10 blueprint-card">
+        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-5 border border-white/10 relative z-10">
           <div className="flex items-center justify-between mb-4">
             <span className="technical-label text-blue-100/40">Sensor Status</span>
             <div className="flex items-center gap-2">
@@ -110,16 +114,16 @@ const SatelliteData = () => {
       {/* Main Content Area */}
       <div className="px-4 -mt-4">
         {loading ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 shadow-lg text-center sketch-border">
-            <BlueprintSatellite className="w-12 h-12 text-primary mx-auto mb-4 animate-float" />
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 shadow-lg text-center border border-gray-100">
+            <Satellite className="w-12 h-12 text-blue-500 mx-auto mb-4 animate-pulse" />
             <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Retrieving Telemetry...</p>
           </div>
         ) : satelliteData?.success ? (
           <div className="space-y-4">
             {/* Methodology Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border-2 border-primary/5 sketch-border">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border border-gray-100 dark:border-gray-700">
               <div className="flex items-center gap-3 mb-4">
-                <BlueprintRadar className="w-6 h-6 text-primary" />
+                <Activity className="w-6 h-6 text-blue-500" />
                 <h3 className="font-black text-gray-800 dark:text-gray-100 uppercase text-xs tracking-widest">Methodology</h3>
               </div>
               <div className="space-y-3">
@@ -135,8 +139,8 @@ const SatelliteData = () => {
             </div>
 
             {/* Parameters Grid */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border-2 border-primary/5 blueprint-card">
-              <h3 className="technical-label mb-4">Sensor Specifications</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border border-gray-100 dark:border-gray-700">
+              <h3 className="text-[10px] font-mono text-gray-400 uppercase mb-4 tracking-widest">Sensor Specifications</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-[10px] uppercase font-bold text-gray-400">Satellite</p>
@@ -158,9 +162,21 @@ const SatelliteData = () => {
             </div>
 
             {/* Risk Zones List */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg sketch-border">
-              <h3 className="technical-label mb-4">Surface Stability Profile</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border border-gray-100 dark:border-gray-700">
+              <h3 className="text-[10px] font-mono text-gray-400 uppercase mb-4 tracking-widest">Surface Stability Profile</h3>
               <div className="space-y-2">
+                {/* Dynamically inserted user location from state if available */}
+                {selectedZone && selectedZone.id === 'custom_location' && (
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900 border border-blue-200 flex justify-between items-center rounded-lg shadow-sm">
+                    <div>
+                      <p className="font-black text-sm uppercase text-blue-800">Your Current Coordinates</p>
+                      <p className="text-[9px] text-blue-500 font-mono">LAT: {userLocation?.lat?.toFixed(4)}, LNG: {userLocation?.lng?.toFixed(4)}</p>
+                    </div>
+                    <span className={`px-2 py-1 rounded font-black text-[10px] ${(selectedZone.location_risk?.rate || selectedZone.subsidence) > 15 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                      {selectedZone.location_risk?.rate || selectedZone.subsidence} mm/yr
+                    </span>
+                  </div>
+                )}
                 {satelliteData.data.zones?.map((zone) => (
                   <div key={zone.id} onClick={() => setSelectedZone(zone)} className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 flex justify-between items-center cursor-pointer hover:bg-white transition shadow-sm">
                     <div>
@@ -176,12 +192,12 @@ const SatelliteData = () => {
             </div>
 
             {/* Floating Selection Report */}
-            {selectedZone && (
-              <div className="bg-primary text-white rounded-2xl p-6 shadow-2xl blueprint-grid animate-fade-in border-t-4 border-red-500">
-                <h3 className="text-xl font-black uppercase mb-4">Report: {selectedZone.id}</h3>
-                <div className="space-y-4 text-xs">
+            {selectedZone && selectedZone.id !== 'custom_location' && (
+              <div className="bg-black text-white rounded-2xl p-6 shadow-2xl border-t-4 border-red-500 mt-6">
+                <h3 className="text-xl font-black uppercase mb-4">Report: {selectedZone.id.replace('_', ' ')}</h3>
+                <div className="space-y-4 text-xs font-mono">
                   <div className="flex justify-between border-b border-white/10 pb-2">
-                    <span className="opacity-40 uppercase font-black">Subsidence Rate</span>
+                    <span className="opacity-40 uppercase">Subsidence Rate</span>
                     <span className="font-black text-lg text-red-400">{selectedZone.subsidence} mm/yr</span>
                   </div>
                   <div className="flex justify-between border-b border-white/10 pb-2">
@@ -203,8 +219,8 @@ const SatelliteData = () => {
             )}
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg text-center border-2 border-red-500/20">
-            <BlueprintAlert className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg text-center border border-red-200">
+            <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <p className="text-xs font-bold uppercase tracking-widest text-red-500">Signal Offline</p>
           </div>
         )}
