@@ -56,28 +56,25 @@ export const getSentinel1SubsidenceData = async (bounds = null, startDate = null
  * @returns {Promise} Risk assessment data
  */
 export const getLocationRiskAssessment = async (lat, lng) => {
+  // First: try the backend GEE API for live data
   try {
     const response = await fetch(`${API_BASE_URL}/api/gee/risk?lat=${lat}&lng=${lng}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(5000) // 5s timeout — don't wait forever
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const data = await response.json();
-    return data;
+    // If backend gave us a rate, great — use it
+    if (data.success && data.data?.subsidenceRate != null) return data;
   } catch (error) {
-    console.error('Risk Assessment API error:', error);
-    return {
-      success: false,
-      error: error.message,
-      data: getMockRiskAssessment(lat, lng)
-    };
+    console.warn('GEE API unavailable, using local IDW spatial proxy:', error.message);
   }
+
+  // Always fallback: compute IDW immediately in-browser — no network needed
+  return getMockRiskAssessment(lat, lng);
 };
 
 /**

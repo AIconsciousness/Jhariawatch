@@ -51,17 +51,24 @@ const Home = () => {
                     riskLevel: data.riskAssessment.riskLevel
                   });
                 } else {
-                  throw new Error("Custom external coordinate");
+                  throw new Error('Not in mapped zone');
                 }
+              } else {
+                throw new Error('Backend returned failure');
               }
-              else throw new Error("Fallback required");
             } catch (error) {
-              console.warn('Utilizing geospatial IDW proxy for coordinate tracking');
+              // IDW proxy always returns success:true with computed rate
               const fallbackRes = await getLocationRiskAssessment(loc.lat, loc.lng);
-              if (fallbackRes.success) setCurrentRisk(fallbackRes.data);
+              setCurrentRisk(fallbackRes.data);
             }
           },
-          () => setUserLocation({ lat: 23.75, lng: 86.42 })
+          async () => {
+            // Geolocation denied — use Jharia centre coordinates and still run IDW
+            const defaultLoc = { lat: 23.75, lng: 86.42 };
+            setUserLocation(defaultLoc);
+            const fallbackRes = await getLocationRiskAssessment(defaultLoc.lat, defaultLoc.lng);
+            setCurrentRisk(fallbackRes.data);
+          }
         );
       }
       setLoading(false);
