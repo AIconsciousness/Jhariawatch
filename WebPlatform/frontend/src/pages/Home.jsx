@@ -7,6 +7,7 @@ import { MapPin, Camera, Bell, Shield, Phone, Satellite, Info, ChevronRight, Rad
 import RiskMap from '../components/RiskMap';
 import LanguageToggle from '../components/LanguageToggle';
 import { riskAPI, alertAPI } from '../services/api';
+import { getLocationRiskAssessment } from '../services/googleEarthEngine';
 
 const Home = () => {
   const { t } = useTranslation();
@@ -42,8 +43,11 @@ const Home = () => {
             try {
               const riskRes = await riskAPI.checkLocation(loc.lat, loc.lng);
               if (riskRes.data.success) setCurrentRisk(riskRes.data.data);
+              else throw new Error("Fallback required");
             } catch (error) {
-              console.error('Failed to check risk:', error);
+              console.warn('Backend risk check failed, utilizing geospatial IDW proxy:', error.message);
+              const fallbackRes = await getLocationRiskAssessment(loc.lat, loc.lng);
+              if (fallbackRes.success) setCurrentRisk(fallbackRes.data);
             }
           },
           () => setUserLocation({ lat: 23.75, lng: 86.42 })

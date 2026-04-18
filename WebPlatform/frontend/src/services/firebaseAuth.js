@@ -4,6 +4,7 @@
 let auth = null;
 let googleAuthProvider = null;
 let recaptchaVerifier = null;
+let isAuthenticating = false;
 
 export const initializeFirebase = async () => {
   try {
@@ -37,10 +38,14 @@ export const initializeFirebase = async () => {
 
 // Google Sign In
 export const signInWithGoogle = async () => {
+  if (isAuthenticating) return { success: false, error: 'Authentication already in progress' };
+  
   try {
+    isAuthenticating = true;
     if (!auth) {
       const initialized = await initializeFirebase();
       if (!initialized) {
+        isAuthenticating = false;
         return {
           success: false,
           error: 'Google Sign In is not available. Please use email registration.'
@@ -50,8 +55,11 @@ export const signInWithGoogle = async () => {
 
     const { signInWithPopup } = await import('firebase/auth');
     
-    // Suppress COOP warnings and attempt sign-in
-    const result = await signInWithPopup(auth, googleAuthProvider).catch((popupError) => {
+    // Attempt sign-in with better popup closure handling
+    let result;
+    try {
+      result = await signInWithPopup(auth, googleAuthProvider);
+    } catch (popupError) {
       // If popup is blocked by COOP, log but continue
       if (popupError.code === 'auth/network-request-failed' || 
           popupError.code === 'auth/popup-blocked' ||
@@ -60,12 +68,13 @@ export const signInWithGoogle = async () => {
         throw popupError;
       }
       throw popupError;
-    });
+    }
     
     // Get user info
     const user = result.user;
     const token = await user.getIdToken();
 
+    isAuthenticating = false;
     return {
       success: true,
       user: {
@@ -78,6 +87,7 @@ export const signInWithGoogle = async () => {
       token
     };
   } catch (error) {
+    isAuthenticating = false;
     console.error('Google sign in error:', error);
 
     // Handle specific error codes

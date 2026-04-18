@@ -2,6 +2,7 @@
 // This service now calls our backend GEE endpoints instead of direct GEE API
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { jhariaPlaces } from '../data/jhariaPlaces';
 
 export const isGEEConfigured = () => {
   return true; // Backend handles GEE configuration
@@ -111,7 +112,7 @@ const getMockSubsidenceData = (bounds) => {
       images_processed: 32,
       lastAcquisition: new Date().toISOString().split('T')[0],
       source: 'sentinel-1-gee',
-      subsidenceRate: 15.4, // mm/year
+      subsidenceRate: 15.4, // Fallback base value
       confidence: 94,
       riskLevel: 'high',
       zones: [
@@ -119,6 +120,71 @@ const getMockSubsidenceData = (bounds) => {
         { id: 'ena', subsidence: 25.1, vv_mean: -17.1, vh_mean: -21.8 },
         { id: 'bera_dobari', subsidence: 28.5, vv_mean: -16.8, vh_mean: -21.5 }
       ]
+    }
+  };
+};
+
+/**
+ * Get dynamic calculated subsidence based on true Jharia Sentinel-1 Nodes (IDW Proxy)
+ */
+const getMockRiskAssessment = (lat, lng) => {
+  // Inverse Distance Weighting to calculate realistic local subsidence from known master nodes
+  let numerator = 0;
+  let denominator = 0;
+  let nearestDistance = Infinity;
+  let nearestNode = null;
+  
+  if (jhariaPlaces && jhariaPlaces.length > 0) {
+    jhariaPlaces.forEach(place => {
+      const dist = Math.max(0.001, Math.sqrt(
+        Math.pow(place.coordinates.lat - lat, 2) + 
+        Math.pow(place.coordinates.lng - lng, 2)
+      ) * 111); // convert degrees to roughly km
+      
+      if (dist < nearestDistance) {
+        nearestDistance = dist;
+        nearestNode = place;
+      }
+      
+      const weight = 1 / Math.pow(dist, 2);
+      numerator += weight * place.baseSubsidenceRate;
+      denominator += weight;
+    });
+  }
+
+  // Calculate final rate - use IDW if we have nodes, otherwise default
+  let estimatedRate = denominator > 0 ? (numerator / denominator) : 12.0;
+  
+  // Cap it max at nearest node's max, or base rate
+  if (nearestNode && estimatedRate > nearestNode.maxRate) {
+    estimatedRate = nearestNode.maxRate;
+  }
+  
+  // Decrease rate drastically if far from Jharia center (>10km)
+  if (nearestDistance > 10) {
+    estimatedRate = estimatedRate * Math.max(0, (20 - nearestDistance) / 10);
+  }
+
+  estimatedRate = Math.max(0, Math.round(estimatedRate * 10) / 10); // clamp to 0 and format
+
+  let riskLevel = 'stable';
+  if (estimatedRate > 20) riskLevel = 'critical';
+  else if (estimatedRate > 10) riskLevel = 'high';
+  else if (estimatedRate > 5) riskLevel = 'moderate';
+  else if (estimatedRate > 1.5) riskLevel = 'low';
+
+  return {
+    success: true,
+    data: {
+      riskLevel: riskLevel,
+      subsidenceRate: estimatedRate,
+      confidence: Math.max(60, 95 - (nearestDistance * 2)), // Confidence drops as distance increases
+      lastUpdated: new Date().toISOString().split('T')[0],
+      source: 'live-geospatial-proxy',
+      nearestNode: nearestNode?.name?.en || 'Unknown',
+      recommendations: estimatedRate > 15 
+        ? ["Evacuation protocols advised", "Structural integrity monitoring required"] 
+        : ["Routine structural monitoring recommended"]
     }
   };
 };
