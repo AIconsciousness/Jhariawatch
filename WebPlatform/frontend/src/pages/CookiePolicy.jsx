@@ -79,10 +79,10 @@ const CookiePolicy = () => {
                 : 'You can control and delete cookies through your browser settings:'}
             </p>
             <ul className="list-disc list-inside text-gray-700 mb-6 space-y-2">
-              <li><strong>Chrome:</strong> Settings > Privacy and Security > Cookies</li>
-              <li><strong>Firefox:</strong> Options > Privacy & Security > Cookies</li>
-              <li><strong>Safari:</strong> Preferences > Privacy > Cookies</li>
-              <li><strong>Edge:</strong> Settings > Privacy > Cookies</li>
+              <li><strong>Chrome:</strong> Settings &gt; Privacy and Security &gt; Cookies</li>
+              <li><strong>Firefox:</strong> Options &gt; Privacy &amp; Security &gt; Cookies</li>
+              <li><strong>Safari:</strong> Preferences &gt; Privacy &gt; Cookies</li>
+              <li><strong>Edge:</strong> Settings &gt; Privacy &gt; Cookies</li>
             </ul>
 
             <p className="text-gray-700 mb-6">

@@ -11,6 +11,13 @@
   --color-moderate: #ca8a04;
   --color-low: #65a30d;
   --color-stable: #16a34a;
+  --color-blueprint-grid: rgba(15, 52, 96, 0.05);
+  --color-sketch-line: #1a1a2e;
+}
+
+.dark {
+  --color-blueprint-grid: rgba(255, 255, 255, 0.05);
+  --color-sketch-line: #e2e8f0;
 }
 
 html {
@@ -18,129 +25,140 @@ html {
 }
 
 body {
-  @apply bg-gray-100;
+  background-color: #f3f4f6;
+  color: #1a1a2e;
   min-height: 100vh;
   min-height: 100dvh;
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-.leaflet-container {
-  height: 100%;
-  width: 100%;
-  border-radius: inherit;
+.dark body {
+  background-color: #111827;
+  color: #f9fafb;
 }
 
-.risk-critical { background-color: rgba(220, 38, 38, 0.3); border-color: #dc2626; }
-.risk-high { background-color: rgba(234, 88, 12, 0.3); border-color: #ea580c; }
-.risk-moderate { background-color: rgba(202, 138, 4, 0.3); border-color: #ca8a04; }
-.risk-low { background-color: rgba(101, 163, 13, 0.3); border-color: #65a30d; }
-.risk-stable { background-color: rgba(22, 163, 74, 0.3); border-color: #16a34a; }
-
-.safe-area-top {
-  padding-top: env(safe-area-inset-top, 0);
+/* ===== INPUT FIELD TEXT VISIBILITY FIX ===== */
+input,
+textarea,
+select {
+  color: #1a1a2e;
+  background-color: #ffffff;
 }
 
-.safe-area-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 0);
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
 }
 
-@layer utilities {
-  .text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
+/* Fix browser autofill background override */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #1a1a2e;
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
-.animate-pulse-slow {
-  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.dark input,
+.dark textarea,
+.dark select {
+  color: #f9fafb;
+  background-color: #1f2937;
+  border-color: #374151;
 }
 
-input, button, textarea, select {
-  font-family: inherit;
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6b7280;
 }
 
-.gradient-primary {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f9fafb;
+  -webkit-box-shadow: 0 0 0px 1000px #1f2937 inset;
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Blueprint Sketch Utilities */
+.blueprint-grid {
+  background-image: 
+    linear-gradient(var(--color-blueprint-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-blueprint-grid) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.sketch-border {
+  border: 2px solid var(--color-sketch-line);
+  box-shadow: 2px 3px 0px 0px var(--color-sketch-line);
+  border-radius: 4px;
+  position: relative;
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+.sketch-border::before {
+  content: '';
+  position: absolute;
+  top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border: 1px solid rgba(0,0,0,0.1);
+  pointer-events: none;
 }
 
-@keyframes gradientShift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+.blueprint-card {
+  background-color: #ffffff;
+  border: 2px solid rgba(15, 52, 96, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  background-image: linear-gradient(rgba(15, 52, 96, 0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(15, 52, 96, 0.03) 1px, transparent 1px);
+  background-size: 15px 15px;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.8s ease-out;
+.dark .blueprint-card {
+  background-color: #1f2937;
+  border-color: rgba(255, 255, 255, 0.1);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
 }
 
-.animate-fade-in-delay {
-  animation: fadeIn 0.8s ease-out 0.2s both;
+.technical-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  color: rgba(26, 26, 46, 0.4);
 }
 
-.animate-fade-in-delay-2 {
-  animation: fadeIn 0.8s ease-out 0.4s both;
-}
-
-.animate-slide-up {
-  animation: slideUp 0.6s ease-out both;
+.dark .technical-label {
+  color: rgba(147, 197, 253, 0.4);
 }
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
-.animate-gradient-shift {
-  background-size: 200% 200%;
-  animation: gradientShift 3s ease infinite;
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
 
-.animate-subtle-zoom {
-  animation: subtleZoom 20s ease-in-out infinite;
-}
-
-@keyframes subtleZoom {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
   }
 }
 
-/* Dark mode support */
-.dark {
-  color-scheme: dark;
+.animate-draw {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: draw 2s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

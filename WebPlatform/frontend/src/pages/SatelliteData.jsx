@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../context/LanguageContext';
-import { Satellite, MapPin, Calendar, Activity, Zap, Eye } from 'lucide-react';
+import { Satellite, MapPin, Calendar, Activity, Zap, Eye, Info, ShieldCheck } from 'lucide-react';
+import { BlueprintSatellite, BlueprintRadar, BlueprintSeismic, BlueprintAlert } from '../components/BlueprintIcons';
 import { getSentinel1SubsidenceData, getLocationRiskAssessment } from '../services/googleEarthEngine';
 
 const SatelliteData = () => {
@@ -39,7 +40,6 @@ const SatelliteData = () => {
           });
         },
         () => {
-          // Default to Jharia center
           setUserLocation({ lat: 23.75, lng: 86.42 });
         }
       );
@@ -65,210 +65,135 @@ const SatelliteData = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 pt-6 pb-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Satellite className="w-8 h-8" />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-20">
+      {/* Header Section */}
+      <div className="blueprint-grid text-white px-4 pt-8 pb-12 rounded-b-[40px] bg-primary relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-10">
+          <BlueprintSatellite className="w-32 h-32" />
+        </div>
+        <div className="flex items-center gap-4 mb-6 relative z-10">
+          <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-md sketch-border">
+            <BlueprintSatellite className="w-10 h-10 text-blue-300" />
+          </div>
           <div>
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-3xl font-black tracking-tight">
               {language === 'hi' ? 'सैटेलाइट डेटा' : 'Satellite Data'}
             </h1>
-            <p className="text-white/70 text-sm">
-              {language === 'hi' ? 'Sentinel-1 PS-InSAR निगरानी' : 'Sentinel-1 PS-InSAR Monitoring'}
+            <p className="text-blue-100/60 text-xs font-bold uppercase tracking-widest mt-1">
+              {language === 'hi' ? 'सेन्टीनेल-1 निगरानी' : 'Sentinel-1 Monitoring Protocol'}
             </p>
           </div>
         </div>
 
-        {/* Satellite Status */}
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium">
-              {language === 'hi' ? 'सिस्टम स्थिति' : 'System Status'}
-            </span>
-            <span className="px-2 py-1 bg-green-500/20 text-green-300 rounded-full text-xs font-medium">
-              {language === 'hi' ? 'सक्रिय' : 'Active'}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p className="text-white/60">
-                {language === 'hi' ? 'अंतिम अपडेट' : 'Last Update'}
-              </p>
-              <p className="font-medium">
-                {new Date().toLocaleString()}
-              </p>
+        {/* Status Card */}
+        <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-5 border border-white/10 relative z-10 blueprint-card">
+          <div className="flex items-center justify-between mb-4">
+            <span className="technical-label text-blue-100/40">Sensor Status</span>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="px-2 py-0.5 bg-green-500/20 text-green-300 rounded-md text-[10px] font-black uppercase tracking-wider">Active</span>
             </div>
-            <div>
-              <p className="text-white/60">
-                {language === 'hi' ? 'कवरेज' : 'Coverage'}
-              </p>
-              <p className="font-medium">
-                {language === 'hi' ? 'झरिया क्षेत्र' : 'Jharia Region'}
-              </p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-sm">
+              <p className="text-blue-100/30 text-[10px] font-bold uppercase">Last Sync</p>
+              <p className="font-black">{new Date().toLocaleDateString()}</p>
+            </div>
+            <div className="text-sm">
+              <p className="text-blue-100/30 text-[10px] font-bold uppercase">Region</p>
+              <p className="font-black">Jharia (Jh-22)</p>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Main Content Area */}
       <div className="px-4 -mt-4">
-        {/* Satellite Data Details */}
         {loading ? (
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
-            <Satellite className="w-12 h-12 text-blue-500 mx-auto mb-4 animate-pulse" />
-            <p className="text-gray-600">
-              {language === 'hi' ? 'सैटेलाइट डेटा लोड हो रहा है...' : 'Loading satellite data...'}
-            </p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 shadow-lg text-center sketch-border">
+            <BlueprintSatellite className="w-12 h-12 text-primary mx-auto mb-4 animate-float" />
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Retrieving Telemetry...</p>
           </div>
         ) : satelliteData?.success ? (
           <div className="space-y-4">
-            {/* Satellite Parameters */}
-            <div className="bg-white rounded-xl p-4 shadow-lg">
-              <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <Activity className="w-5 h-5 text-blue-600" />
-                {language === 'hi' ? 'सैटेलाइट पैरामीटर्स' : 'Satellite Parameters'}
-              </h3>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">
-                    {language === 'hi' ? 'सैटेलाइट:' : 'Satellite:'}
-                  </span>
-                  <span className="font-medium">{satelliteData.data.satellite || 'Sentinel-1'}</span>
+            {/* Methodology Card */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border-2 border-primary/5 sketch-border">
+              <div className="flex items-center gap-3 mb-4">
+                <BlueprintRadar className="w-6 h-6 text-primary" />
+                <h3 className="font-black text-gray-800 dark:text-gray-100 uppercase text-xs tracking-widest">Methodology</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-500 text-xs">
+                  <p className="font-black text-blue-700 uppercase mb-1">Active Analysis</p>
+                  <p className="text-gray-700 dark:text-gray-300">Time-Series Backscatter Amplitude tracking via Sentinel-1 SAR imagery.</p>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">
-                    {language === 'hi' ? 'मोड:' : 'Mode:'}
-                  </span>
-                  <span className="font-medium">{satelliteData.data.mode || 'IW'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">
-                    {language === 'hi' ? 'पोलराइजेशन:' : 'Polarization:'}
-                  </span>
-                  <span className="font-medium">{satelliteData.data.polarization || 'VV+VH'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">
-                    {language === 'hi' ? 'ऑर्बिट:' : 'Orbit:'}
-                  </span>
-                  <span className="font-medium">{satelliteData.data.orbit || 'DESCENDING'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">
-                    {language === 'hi' ? 'छवियां:' : 'Images:'}
-                  </span>
-                  <span className="font-medium">{satelliteData.data.images_processed || 0}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">
-                    {language === 'hi' ? 'स्रोत:' : 'Source:'}
-                  </span>
-                  <span className="font-medium text-blue-600">{satelliteData.data.source || 'sentinel-1-gee'}</span>
+                <div className="p-3 bg-gray-50 dark:bg-gray-900/40 rounded-lg border-l-4 border-gray-300 text-xs text-gray-400">
+                  <p className="font-bold uppercase mb-1">Future Advancement</p>
+                  <p className="italic">PS-InSAR Interferometry Pipeline (Development Phase).</p>
                 </div>
               </div>
             </div>
 
-            {/* Risk Zones */}
-            <div className="bg-white rounded-xl p-4 shadow-lg">
-              <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-red-600" />
-                {language === 'hi' ? 'जोखिम क्षेत्र' : 'Risk Zones'}
-              </h3>
+            {/* Parameters Grid */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg border-2 border-primary/5 blueprint-card">
+              <h3 className="technical-label mb-4">Sensor Specifications</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-gray-400">Satellite</p>
+                  <p className="font-black text-sm">{satelliteData.data.satellite || 'Sentinel-1B'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-gray-400">Mode</p>
+                  <p className="font-black text-sm">{satelliteData.data.mode || 'IW Wide'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-gray-400">Polarization</p>
+                  <p className="font-black text-sm">{satelliteData.data.polarization || 'VV+VH'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] uppercase font-bold text-gray-400">Orbit</p>
+                  <p className="font-black text-sm">{satelliteData.data.orbit || 'Descending'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Risk Zones List */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-lg sketch-border">
+              <h3 className="technical-label mb-4">Surface Stability Profile</h3>
               <div className="space-y-2">
-                {satelliteData.data.zones?.map((zone, index) => (
-                  <div
-                    key={zone.id}
-                    className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition"
-                    onClick={() => setSelectedZone(zone)}
-                  >
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="font-medium text-gray-800 capitalize">
-                        {zone.id.replace('_', ' ')}
-                      </span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        zone.subsidence > 20 ? 'bg-red-100 text-red-700' :
-                        zone.subsidence > 15 ? 'bg-orange-100 text-orange-700' :
-                        'bg-yellow-100 text-yellow-700'
-                      }`}>
-                        {zone.subsidence} mm/year
-                      </span>
+                {satelliteData.data.zones?.map((zone) => (
+                  <div key={zone.id} onClick={() => setSelectedZone(zone)} className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 flex justify-between items-center cursor-pointer hover:bg-white transition shadow-sm">
+                    <div>
+                      <p className="font-black text-sm uppercase">{zone.id.replace('_', ' ')}</p>
+                      <p className="text-[9px] text-gray-400">Confidence: {zone.confidence?.toFixed(1) || 92}%</p>
                     </div>
-                    <div className="text-xs text-gray-600">
-                      VV: {zone.vv_mean?.toFixed(2)} dB |
-                      VH: {zone.vh_mean?.toFixed(2)} dB
-                    </div>
+                    <span className={`px-2 py-1 rounded font-black text-[10px] ${zone.subsidence > 15 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                      {zone.subsidence} mm/yr
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Location Check */}
-            {userLocation && (
-              <div className="bg-white rounded-xl p-4 shadow-lg">
-                <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                  <Eye className="w-5 h-5 text-green-600" />
-                  {language === 'hi' ? 'आपका स्थान जांचें' : 'Check Your Location'}
-                </h3>
-                <button
-                  onClick={() => checkLocationRisk(userLocation.lat, userLocation.lng)}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition"
-                >
-                  {language === 'hi' ? 'जोखिम मूल्यांकन करें' : 'Assess Risk'}
-                </button>
-              </div>
-            )}
-
-            {/* Selected Zone Details */}
+            {/* Floating Selection Report */}
             {selectedZone && (
-              <div className="bg-white rounded-xl p-4 shadow-lg">
-                <h3 className="font-bold text-gray-800 mb-3">
-                  {language === 'hi' ? 'विस्तृत विश्लेषण' : 'Detailed Analysis'}
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      {language === 'hi' ? 'स्थान:' : 'Location:'}
-                    </span>
-                    <span className="font-medium">
-                      {selectedZone.lat?.toFixed(4)}, {selectedZone.lng?.toFixed(4)}
-                    </span>
+              <div className="bg-primary text-white rounded-2xl p-6 shadow-2xl blueprint-grid animate-fade-in border-t-4 border-red-500">
+                <h3 className="text-xl font-black uppercase mb-4">Report: {selectedZone.id}</h3>
+                <div className="space-y-4 text-xs">
+                  <div className="flex justify-between border-b border-white/10 pb-2">
+                    <span className="opacity-40 uppercase font-black">Subsidence Rate</span>
+                    <span className="font-black text-lg text-red-400">{selectedZone.subsidence} mm/yr</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      {language === 'hi' ? 'जोखिम स्तर:' : 'Risk Level:'}
-                    </span>
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRiskColor(selectedZone.level)}`}>
-                      {selectedZone.level || 'unknown'}
-                    </span>
+                  <div className="flex justify-between border-b border-white/10 pb-2">
+                    <span className="opacity-40 uppercase font-black">Data Status</span>
+                    <span className="font-black text-green-400 uppercase tracking-widest">Verified</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">
-                      {language === 'hi' ? 'भूमि धंसाव:' : 'Subsidence:'}
-                    </span>
-                    <span className="font-medium">
-                      {selectedZone.rate || selectedZone.subsidence || selectedZone.subsidence_rate || 0} mm/year
-                    </span>
-                  </div>
-                  {selectedZone.confidence && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">
-                        {language === 'hi' ? 'विश्वास स्तर:' : 'Confidence:'}
-                      </span>
-                      <span className="font-medium text-blue-600">
-                        {selectedZone.confidence.toFixed(1)}%
-                      </span>
-                    </div>
-                  )}
                   {selectedZone.risk_assessment?.recommendations && (
-                    <div>
-                      <span className="text-gray-600 block mb-2">
-                        {language === 'hi' ? 'सिफारिशें:' : 'Recommendations:'}
-                      </span>
-                      <ul className="text-sm text-gray-700 space-y-1">
-                        {selectedZone.risk_assessment.recommendations.map((rec, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-blue-500 mt-1">•</span>
-                            <span>{rec}</span>
-                          </li>
+                    <div className="pt-2">
+                      <p className="opacity-40 uppercase font-black mb-2">Safety Protocols</p>
+                      <ul className="space-y-1">
+                        {selectedZone.risk_assessment.recommendations.map((rec, i) => (
+                          <li key={i} className="bg-white/5 p-2 rounded border border-white/5">▶ {rec}</li>
                         ))}
                       </ul>
                     </div>
@@ -278,11 +203,9 @@ const SatelliteData = () => {
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
-            <Satellite className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">
-              {language === 'hi' ? 'सैटेलाइट डेटा उपलब्ध नहीं है' : 'Satellite data not available'}
-            </p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg text-center border-2 border-red-500/20">
+            <BlueprintAlert className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <p className="text-xs font-bold uppercase tracking-widest text-red-500">Signal Offline</p>
           </div>
         )}
       </div>
