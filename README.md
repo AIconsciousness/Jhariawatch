@@ -116,25 +116,52 @@ The application will be available at:
 ## 🗂️ Project Structure
 
 ```
-JhariaWatch/
-├── WebPlatform/
-│   ├── backend/
+JhariyaWatch/
+├── WebPlatform/                          # 🌐 Web App (React + Node.js)
+│   ├── backend/                          # Express.js API Server
 │   │   ├── src/
-│   │   │   ├── models/          # Database schemas
-│   │   │   ├── routes/          # API endpoints
-│   │   │   ├── middlewares/     # Auth & validation
-│   │   │   └── data/            # Seed data
+│   │   │   ├── config/                   # Database & Firebase config
+│   │   │   ├── controllers/              # Business logic
+│   │   │   ├── models/                   # MongoDB schemas (7 models)
+│   │   │   ├── routes/                   # API endpoints (8 route files)
+│   │   │   ├── middlewares/              # Auth & validation
+│   │   │   ├── services/                 # GEE, Firebase, Satellite, Email
+│   │   │   └── data/                     # Seed data (Jharia risk zones)
+│   │   ├── .env.example
 │   │   └── package.json
-│   └── frontend/
-│       ├── src/
-│       │   ├── components/      # Reusable components
-│       │   ├── pages/           # Page components
-│       │   ├── context/         # React contexts
-│       │   ├── services/        # API services
-│       │   └── i18n/            # Translations
-│       └── package.json
-├── Assets and Research paper/   # Images & research
-└── Planning doc/                # Documentation
+│   ├── frontend/                         # React 18 + Vite Dashboard
+│   │   ├── src/
+│   │   │   ├── components/               # 15+ reusable components
+│   │   │   ├── pages/                    # 15+ page views
+│   │   │   ├── context/                  # Auth + Language contexts
+│   │   │   ├── services/                 # API, Firebase, GEE clients
+│   │   │   ├── hooks/                    # Notification hooks
+│   │   │   ├── i18n/                     # English + Hindi translations
+│   │   │   ├── data/                     # Jharia places data
+│   │   │   └── config/                   # Firebase config
+│   │   ├── public/
+│   │   │   └── assets/                   # 📸 Images & research papers
+│   │   └── package.json
+│   └── docs/                             # 📋 Full documentation (15+ files)
+│       ├── PROJECT_OVERVIEW.md
+│       ├── ARCHITECTURE.md
+│       ├── API_DOCUMENTATION.md
+│       ├── DATABASE_SCHEMA.md
+│       ├── BACKEND_GUIDE.md
+│       ├── FRONTEND_MOBILE_GUIDE.md
+│       ├── WEB_DASHBOARD_GUIDE.md
+│       ├── SATELLITE_DATA_GUIDE.md
+│       ├── RENDER_DEPLOYMENT_GUIDE.md
+│       ├── CREDENTIALS_SETUP.md
+│       ├── INVESTOR_PITCH_SCRIPT.md
+│       ├── PITCH_SUGGESTIONS_AND_IMPROVEMENTS.md
+│       ├── PRESENTATION_OUTLINE.md
+│       └── CLAUDE_CODE_PROMPTS.md
+├── MobilePlatform/                       # 📱 Mobile App (React Native - planned)
+│   ├── frontend/                         # React Native source
+│   └── backend/                          # Mobile-specific API (optional)
+├── .gitignore
+└── README.md
 ```
 
 ## 🔐 API Endpoints
