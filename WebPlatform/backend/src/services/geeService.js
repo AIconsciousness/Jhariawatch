@@ -62,7 +62,7 @@ class GEEService {
 
   async getSentinel1Data(bbox, startDate, endDate) {
     if (!this.initialized) {
-      return this.getMockData(bbox);
+      return this.getEnhancedMockData(bbox);
     }
 
     if (this.useRealData) {
@@ -104,7 +104,7 @@ class GEEService {
         };
       } catch (error) {
         console.error('GEE data fetch error:', error.message);
-        return this.getMockData(bbox);
+        return this.getEnhancedMockData(bbox);
       }
     }
 
