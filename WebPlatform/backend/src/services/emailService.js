@@ -2,7 +2,8 @@ const { Resend } = require('resend');
 const nodemailer = require('nodemailer');
 
 // Constants
-const OFFICIAL_FROM = process.env.OFFICIAL_FROM_EMAIL || 'jhariyawatchapp@gmail.com';
+const OFFICIAL_FROM = process.env.EMAIL_FROM || 'jhariawatch@chakravega.com';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://jhariawatch.chakravega.com';
 
 /**
  * Gets the active email provider based on environment variables.

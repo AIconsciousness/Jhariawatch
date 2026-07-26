@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const authMiddleware = require('../middlewares/authMiddleware');
 const { verifyFirebaseToken } = require('../services/firebaseService');
+const { sendLoginNotification } = require('../services/notificationService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'jharia-watch-secret-key-2025';
 
@@ -154,6 +155,12 @@ router.post('/login', [
 
     const token = generateToken(user._id);
     const userData = user.toJSON();
+
+    // Send login notification email (fire and forget)
+    sendLoginNotification(user, {
+      device: req.headers['user-agent']?.substring(0, 50) || 'Web Browser',
+      location: user.addressDetails?.area || 'Jharia, Dhanbad'
+    }).catch(err => console.error('Login email failed:', err.message));
     
     console.log('✅ Login successful for:', email);
     console.log('Token generated:', token ? 'Yes' : 'No');
@@ -284,6 +291,12 @@ router.post('/google', async (req, res) => {
     await user.save();
 
     const jwtToken = generateToken(user._id);
+
+    // Send login notification email (fire and forget)
+    sendLoginNotification(user, {
+      device: 'Google Sign-In',
+      location: user.addressDetails?.area || 'Jharia, Dhanbad'
+    }).catch(err => console.error('Google login email failed:', err.message));
 
     res.json({
       success: true,
