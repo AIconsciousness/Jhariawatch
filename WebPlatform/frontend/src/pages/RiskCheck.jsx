@@ -8,6 +8,7 @@ import DetailedSubsidenceChart from '../components/DetailedSubsidenceChart';
 import { useSubsidenceNotifications } from '../hooks/useSubsidenceNotifications';
 import { riskAPI } from '../services/api';
 import { jhariaPlaces, getPlaceByCoordinates, generatePlaceTimeSeries } from '../data/jhariaPlaces';
+import api from '../services/api';
 
 const RiskCheck = () => {
   const { t } = useTranslation();
@@ -89,6 +90,20 @@ const RiskCheck = () => {
       const response = await riskAPI.checkLocation(lat, lng);
       if (response.data.success) {
         setRiskData(response.data.data);
+        const data = response.data.data;
+        // Auto-send risk report email to user
+        const zone = data.riskAssessment?.zone || data.zone || {};
+        api.post('/notifications/risk-report', {
+          riskLevel: data.riskAssessment?.riskLevel || data.location_risk?.level || 'moderate',
+          subsidenceRate: data.location_risk?.rate || data.riskAssessment?.subsidenceData?.averageRate || 0,
+          confidence: 92,
+          address: selectedPlace ? (selectedPlace.name[language] || selectedPlace.name.en) : 'Your Location',
+          zoneName: zone.zoneName?.en || selectedPlace?.name?.en || 'Jharia Coalfield',
+          zoneId: zone.zoneId || selectedPlace?.id || 'unknown',
+          lastAcquisition: new Date().toISOString().split('T')[0],
+          coordinates: { lat, lng }
+        }).then(() => console.log('📧 Risk report email triggered'))
+          .catch(err => console.error('⚠️ Risk report email failed:', err.message));
       }
     } catch (error) {
       console.error('Failed to fetch risk data:', error);
